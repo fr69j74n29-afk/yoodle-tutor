@@ -1,0 +1,5 @@
+# robots.txt — Yoodle Tutors (tutor.yoodle.ca)
+# Coming-soon placeholder: pages carry <meta name="robots" content="noindex">.
+# Crawling stays allowed so Google can see the noindex tag.
+User-agent: *
+Allow: /
