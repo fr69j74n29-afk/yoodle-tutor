@@ -4,6 +4,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Send http:// visitors to https:// before anything loads. Supabase only returns sign-ins to https://tutor.yoodle.ca/**; an http origin would fall back to yoodle.ca. -->
+<script>if(location.protocol==='http:'&&location.hostname==='tutor.yoodle.ca')location.replace('https://'+location.host+location.pathname+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://pyzugtltkbpcxvokdmps.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
