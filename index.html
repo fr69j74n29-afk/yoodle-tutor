@@ -1,46 +1,1825 @@
-<!doctype html>
+<!DOCTYPE html>
+<!-- Yoodle Tutors — tutor.yoodle.ca. Same structure and design system as yoodle.ca (yoodle-web/index.html):
+     one file, vanilla JS, Supabase (same project and accounts as yoodle.ca). Schema: supabase/migrations/. -->
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#000000">
-<title>Yoodle Tutors — coming soon</title>
-<meta name="description" content="Yoodle Tutors is coming soon: find a local tutor in your neighbourhood, or get students as a tutor.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://pyzugtltkbpcxvokdmps.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Yoodle Tutors: Find a Local Tutor Near You</title>
+<meta name="description" content="Find a verified local tutor for you or your child, or offer tutoring in your neighbourhood. ID-verified tutors, background checks for anyone teaching under-18s.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="https://yoodle.ca/favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"></noscript>
 <style>
-  :root{--bg:#F5F7F9;--ink:#0F2A3D;--ink2:#4A5F6E;--accent:#EA6A12;--accent-d:#C4560B}
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.45}
-  a{color:var(--accent-d)}
-  .wrap{max-width:560px;margin:0 auto;padding:0 16px}
-  header.top{background:#000;color:#fff;padding:14px 0}
-  .brand{display:flex;align-items:baseline;gap:8px;text-decoration:none}
-  .wm{font-family:'Fredoka One',cursive;font-size:26px;letter-spacing:.5px;line-height:1;color:#fff}
-  .tag{background:var(--accent);color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;padding:3px 8px;border-radius:6px;text-transform:uppercase}
-  .hero{background:var(--ink);color:#fff;padding:36px 0 44px}
-  .hero h1{font-size:30px;line-height:1.15;margin:0 0 12px;font-weight:800}
-  .hero p{color:#C9D6DF;margin:0 0 22px;font-size:17px}
-  .btn{display:inline-block;background:var(--accent);color:#fff;font-weight:800;text-decoration:none;padding:13px 20px;border-radius:12px}
-  .btn:hover{background:var(--accent-d)}
-  main{padding:28px 0 40px;color:var(--ink2)}
-  footer{padding:20px 0 32px;color:#7A8B97;font-size:14px}
+:root{
+  --purple:#5C8A6A;--lime:#2E7D52;--pink:#3D6B50;
+  --teal:#4A9E7A;--orange:#F97316;--yellow:#C8A96E;
+  --bg:#F5F4EF;--surface:#FFFFFF;--surface2:#EFF0EA;
+  --border:#D4D6CD;--text:#1E2620;--muted:#7A8A7C;--text2:#4A5A4E;
+  --radius:20px;--radius-sm:12px;
+  --btn-a:#5C8A6A;--btn-b:#3D6B50;--btn-lime:#2E7D52;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --idv:#2563EB;--idv-soft:rgba(37,99,235,.07);--idv-line:rgba(37,99,235,.28);
+  --kid:#0E7490;--kid-soft:rgba(14,116,144,.08);--kid-line:rgba(14,116,144,.30); /* "Available for students under 18" */
+  --danger:#DC5046;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;overscroll-behavior:none}
+body{
+  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  max-width:480px;margin:0 auto;height:100%;height:100dvh;
+  display:flex;flex-direction:column;overflow:hidden;position:relative;
+}
+body.theme-sage-dark{
+  --purple:#4CC38A;--lime:#8DE0A8;--pink:#2F9E68;
+  --btn-a:#178A52;--btn-b:#0F6B3C;--btn-lime:#15803D;
+  --idv:#60A5FA;--idv-soft:rgba(96,165,250,.10);--idv-line:rgba(96,165,250,.35);
+  --kid:#5EC8DD;--kid-soft:rgba(94,200,221,.10);--kid-line:rgba(94,200,221,.35);
+  --teal:#3AC0CF;--orange:#FF8A3D;--yellow:#F0CF5A;
+  --bg:#050706;--surface:#0D120F;--surface2:#141A16;
+  --border:#232C25;--text:#F0EFEA;--muted:#93A596;--text2:#C9CFC9;
+}
+body.theme-sage-dark .top-bar{background:rgba(13,18,15,.96)}
+body.theme-sage-dark .bottom-nav{background:rgba(13,18,15,.97)}
+body.theme-sage-dark .btn-google{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+body.theme-sage-dark .modal-ov,body.theme-sage-dark .op-ov{background:rgba(0,0,0,.7)}
+body.theme-sage-dark .nav-i.active{color:#fff}
+body.theme-sage-dark .ly{color:#9078C0}body.theme-sage-dark .lo1{color:#8DC95F}body.theme-sage-dark .lo2{color:#7577D6}
+body.theme-sage-dark .ld{color:#3AACBC}body.theme-sage-dark .ll{color:#F97316}body.theme-sage-dark .le{color:#E0C45A}
+body.theme-sage-dark .safety-tip{--tip-bg:#2A2110;--tip-bd:#5A4520;--tip-tx:#F0CF8A}
+
+/* LOGO */
+.wordmark{font-family:'Fredoka One',cursive;line-height:1;white-space:nowrap}
+.ly{color:#9078C0}.lo1{color:#5E9E2E}.lo2{color:#7577D6}.ld{color:#1F8E9E}.ll{color:#D9600A}.le{color:#A07E14}
+.wm-tag{font-family:'Fredoka One',cursive;color:var(--muted);font-size:.5em;margin-left:5px;vertical-align:baseline}
+
+/* ── SIGNED-OUT LANDING ── */
+#view-auth{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:999;
+  --bg:#EEF2EC;--surface:#FFFFFF;--surface2:#F3F6F2;--border:#DCE3DD;--text:#1F2A24;--muted:#6B7A71;--purple:#5E8B6F;--pink:#4A7359;--lime:#2E7D52;--sage-soft:#E3ECE5;color:var(--text)}
+.ga-wrap{width:100%;max-width:440px;margin:0 auto;display:flex;flex-direction:column;flex:1 0 auto;padding:calc(var(--sat) + 14px) 22px calc(var(--sab) + 24px)}
+.ga-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.ga-wm{font-size:34px}
+.ga-pill{background:var(--sage-soft);color:var(--pink);border:none;border-radius:999px;padding:9px 18px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.ga-eyebrow{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);text-align:center;margin:18px 0 8px}
+.ga-fork-h{font-family:'Fredoka One',cursive;font-weight:400;font-size:28px;line-height:1.2;text-align:center}
+.ga-fork-sub{font-size:15px;font-weight:600;color:var(--muted);text-align:center;margin:6px 0 28px}
+.ga-choice{width:100%;min-height:98px;display:flex;align-items:center;gap:16px;padding:20px;border-radius:16px;background:var(--surface);cursor:pointer;text-align:left;font-family:'Nunito',sans-serif;margin-bottom:14px;transition:transform .15s}
+.ga-choice:active{transform:scale(.98)}
+.ga-choice-ico{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px}
+.ga-choice-t{font-size:18px;font-weight:800;color:var(--text);margin-bottom:2px}
+.ga-choice-d{font-size:14px;font-weight:700;color:var(--muted)}
+.ga-trust{margin-top:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:6px 16px}
+.ga-step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.ga-step:last-child{border-bottom:none}
+.ga-step .e{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.ga-step b{display:block;font-size:14px;font-weight:800}
+.ga-step span{font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.45}
+.ga-alt{margin-top:18px;text-align:center;font-size:14px;font-weight:700;color:var(--muted)}
+.ga-alt a{color:var(--purple);font-weight:800;cursor:pointer}
+.auth-legal{font-size:12.5px;color:var(--muted);text-align:center;margin-top:22px;line-height:1.7}
+.auth-legal a{color:var(--purple);text-decoration:none}
+.ga-dim{position:fixed;inset:0;background:rgba(20,30,25,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:5}
+.ga-dim.open{opacity:1;pointer-events:auto}
+.ga-sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);background:var(--surface);border-radius:26px 26px 0 0;padding:12px 22px calc(var(--sab) + 22px);z-index:6;max-height:92dvh;overflow-y:auto;box-shadow:0 -8px 30px rgba(0,0,0,.15)}
+.ga-sheet.open{transform:translate(-50%,0)}
+.ga-grab{width:40px;height:5px;border-radius:5px;background:var(--border);margin:0 auto 14px}
+.ga-sheet h3{font-family:'Fredoka One',cursive;font-weight:400;font-size:24px;color:var(--pink);margin-bottom:4px}
+.ga-sheet-p{font-size:14px;color:var(--muted);font-weight:600;line-height:1.5;margin-bottom:16px}
+.auth-btns{width:100%;display:flex;flex-direction:column;gap:10px}
+.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13.5px;font-weight:700;margin:4px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;padding:17px 24px;border-radius:var(--radius);background:#fff;color:#1a1a1a;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;border:1.5px solid var(--border);cursor:pointer;width:100%}
+.magic-wrap{display:flex;flex-direction:column;gap:8px}
+.magic-row,.otp-row{display:flex;gap:8px}
+.magic-email,.otp-inp{flex:1;min-width:0;padding:15px 16px;border-radius:var(--radius);background:var(--surface);border:1.5px solid var(--border);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none}
+.otp-inp{font-size:22px;font-weight:800;letter-spacing:6px;text-align:center}
+.magic-email:focus,.otp-inp:focus{border-color:var(--purple)}
+.btn-magic,.btn-otp{padding:15px 20px;border-radius:var(--radius);background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;border:none;cursor:pointer;white-space:nowrap}
+.ga-sheet .btn-magic{background:var(--sage-soft);color:var(--pink)}
+.btn-magic:disabled,.btn-otp:disabled{opacity:.5;cursor:not-allowed}
+.magic-sent{background:rgba(46,125,82,.08);border:1.5px solid rgba(46,125,82,.18);border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;color:var(--lime);font-weight:700;text-align:center;display:none;line-height:1.5}
+.otp-wrap{display:none;flex-direction:column;gap:8px;margin-top:4px}
+.otp-again{background:none;border:none;color:var(--muted);font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;text-decoration:underline;align-self:center}
+@media(min-width:481px){
+  body{box-shadow:0 0 0 1px var(--border)}
+  html{background:#050505}
+  .ga-sheet{bottom:50%;border-radius:26px;transform:translate(-50%,60%);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;max-width:420px}
+  .ga-sheet.open{transform:translate(-50%,50%);opacity:1;pointer-events:auto}
+  .ga-grab{display:none}
+}
+
+/* ── MAIN APP ── */
+#view-main{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;position:relative}
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--sat) + 10px) 20px 10px;background:rgba(245,244,239,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;flex-shrink:0}
+.top-wm{font-size:30px}
+.top-right{display:flex;align-items:center;gap:8px}
+.round-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.round-btn:active{transform:scale(.92)}
+.round-btn svg{width:19px;height:19px;display:block}
+.round-btn .ic-sun{display:none}
+body.theme-sage-dark .round-btn .ic-sun{display:block}
+body.theme-sage-dark .round-btn .ic-moon{display:none}
+.dot-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;line-height:17px;text-align:center;display:none}
+.app-view{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.app-view.active{display:flex}
+.view-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 20px calc(var(--sab) + 24px);-webkit-overflow-scrolling:touch}
+.section-h{font-size:22px;font-weight:800;margin-bottom:4px}
+.section-sub{font-size:14px;color:var(--muted);font-weight:700;margin-bottom:16px;line-height:1.45}
+.act-h{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 2px 8px}
+
+/* BOTTOM NAV */
+.bottom-nav{display:flex;align-items:center;justify-content:space-around;padding:8px 0 var(--sab);background:rgba(245,244,239,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:200;flex-shrink:0;position:relative}
+.nav-i{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;flex:1;min-height:44px;justify-content:center;white-space:nowrap}
+.nav-i.active{color:var(--purple)}
+body:not(.theme-sage-dark) .nav-i.active{color:#2E4A38}
+.nav-i svg{width:22px;height:22px}
+.nav-dot{position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--danger);display:none}
+
+/* FORMS */
+.form-g{margin-bottom:16px}
+.form-lbl{display:block;font-size:13.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.form-hint{font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.5;margin-top:6px}
+.form-lbl .req,.form-legend .req{color:var(--danger)}
+.form-lbl .opt{text-transform:none;letter-spacing:0;font-weight:600}
+.form-legend{font-size:12.5px;font-weight:700;color:var(--muted);margin:-4px 0 14px}
+.form-inp,.form-ta,.form-sel{width:100%;padding:14px 16px;border-radius:var(--radius-sm);background:var(--surface);border:1.5px solid var(--border);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;-webkit-appearance:none;appearance:none}
+.form-sel{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+.form-inp:focus,.form-ta:focus,.form-sel:focus{border-color:var(--purple)}
+.form-ta{resize:none;height:100px}
+.btn-primary{width:100%;padding:16px;border-radius:var(--radius);background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:#fff;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;border:none;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{width:100%;padding:14px;border-radius:var(--radius);background:transparent;border:1.5px solid var(--border);color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+.btn-text{width:100%;padding:12px;background:transparent;border:none;color:var(--muted);font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:4px}
+.btn-danger{width:100%;padding:14px;border-radius:var(--radius);background:transparent;border:1.5px solid rgba(220,80,70,.3);color:var(--danger);font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+.btn-row{display:flex;gap:8px}
+.btn-row>*{flex:1;margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:8px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.chips button.on{border-color:var(--purple);background:rgba(92,138,106,.10);color:var(--purple)}
+.seg{display:flex;gap:6px;background:var(--surface2);border-radius:12px;padding:4px}
+.seg button{flex:1;padding:9px 6px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.loc-wrap{position:relative}
+.loc-suggestions{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface2);border:1.5px solid var(--purple);border-radius:var(--radius-sm);z-index:500;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.1);display:none}
+.loc-suggestions.open{display:block}
+.loc-suggestion{padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--border)}
+.loc-suggestion:last-child{border-bottom:none}
+.sug-main{font-size:14px;font-weight:800}
+.sug-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.loc-status{font-size:12.5px;font-weight:700;margin-top:6px;min-height:16px;color:var(--muted)}
+.loc-status.ok{color:var(--lime)}
+.sw{position:relative;width:52px;height:30px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--border);transition:background .2s;cursor:pointer}
+.sw span::after{content:'';position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked+span{background:var(--btn-a)}
+.sw input:checked+span::after{transform:translateX(22px)}
+.check-row{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:700;color:var(--text2);line-height:1.5;cursor:pointer;margin:12px 0}
+.check-row input{width:19px;height:19px;flex-shrink:0;margin-top:1px;accent-color:var(--btn-a)}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:14px 16px;margin-bottom:10px}
+.tcard{background:var(--surface);border-radius:var(--radius-sm);padding:14px 16px;border:1.5px solid var(--border);cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.tcard::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--jc,var(--purple))}
+.tcard:active{transform:scale(.98)}
+.tc-top{display:flex;align-items:center;gap:12px}
+.tc-name{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-head{font-size:13.5px;color:var(--text2);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-rate{font-size:17px;font-weight:800;color:var(--lime);white-space:nowrap;flex-shrink:0;margin-left:auto}
+.tc-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--muted);font-weight:800}
+.tag{display:inline-flex;align-items:center;font-size:11.5px;font-weight:800;color:var(--purple);background:rgba(92,138,106,.08);border:1px solid rgba(92,138,106,.18);border-radius:100px;padding:2px 9px;white-space:nowrap}
+.idv-chip,.kid-chip{display:inline-flex;align-items:center;gap:3px;margin-left:5px;font-size:11.5px;font-weight:800;line-height:1.5;padding:0 8px;border-radius:100px;white-space:nowrap;vertical-align:middle}
+.idv-chip{background:var(--idv-soft);color:var(--idv);border:1px solid var(--idv-line)}
+.kid-chip{background:var(--kid-soft);color:var(--kid);border:1px solid var(--kid-line)}
+.status-pill{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:100px;background:var(--surface2);color:var(--muted)}
+.status-pill.ok{background:rgba(46,125,82,.10);color:var(--lime)}
+.status-pill.warn{background:rgba(200,169,110,.16);color:#9A7A2E}
+.status-pill.bad{background:rgba(220,80,70,.10);color:var(--danger)}
+body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
+.row-btn{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;font-size:15px;font-weight:800;cursor:pointer;color:var(--text);width:100%;font-family:'Nunito',sans-serif;text-align:left}
+
+/* MODALS — bottom sheets, same as yoodle.ca */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal-sheet{width:100%;max-width:480px;background:var(--surface);border-radius:28px 28px 0 0;padding:24px 24px max(24px,calc(var(--sab) + 16px));max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.modal-title{font-size:22px;font-weight:800;word-break:break-word}
+.x-btn{width:34px;height:34px;border-radius:50%;border:none;background:var(--surface2);color:var(--muted);font-size:16px;font-weight:800;cursor:pointer;flex-shrink:0}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.modal-pill{background:var(--surface2);border-radius:14px;padding:12px;text-align:center}
+.modal-pill-l{font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.modal-pill-v{font-size:16px;font-weight:800}
+.gate{display:none;position:fixed;inset:0;z-index:2450;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center}
+.gate.open{display:flex}
+
+/* TUTOR PROFILE SHEET */
+.op-hero{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.op-name{font-size:20px;font-weight:800;line-height:1.25}
+.op-mod-links{display:flex;gap:6px;margin-top:4px;font-size:12.5px;color:var(--muted)}
+.op-mod-links button{background:none;border:none;padding:2px 0;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:var(--danger);text-decoration:underline;cursor:pointer}
+.box{background:var(--surface2);border-radius:var(--radius-sm);border:1.5px solid var(--border);padding:14px 16px;margin-bottom:12px;word-break:break-word}
+.box-lbl{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.box-txt{font-size:14px;font-weight:600;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+.avail{display:grid;grid-template-columns:44px repeat(3,1fr);gap:4px;font-size:12px;font-weight:800;color:var(--muted);text-align:center}
+.avail div{padding:5px 2px;border-radius:6px}
+.avail .on{background:rgba(92,138,106,.18);color:var(--purple)}
+.avail .off{background:var(--surface)}
+.avail button{padding:9px 2px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font:800 12px 'Nunito',sans-serif;cursor:pointer}
+.avail button.on{border-color:var(--purple);background:rgba(92,138,106,.12);color:var(--purple)}
+.review{padding:10px 0;border-top:1px solid var(--border)}
+.review:first-child{border-top:none;padding-top:0}
+.stars{color:var(--yellow);font-weight:800;letter-spacing:1px}
+
+/* SAFETY */
+.safety-tip{--tip-bg:#FFF6E6;--tip-bd:#F2D49B;--tip-tx:#7A5410;background:var(--tip-bg);border:1.5px solid var(--tip-bd);color:var(--tip-tx);border-radius:16px;padding:12px 14px;margin-bottom:14px;font-size:13.5px;font-weight:700;line-height:1.5}
+.safety-tip b{font-weight:900;display:block;margin-bottom:4px;font-size:14px}
+.safety-tip ul{margin:6px 0 2px;padding-left:18px}
+.safety-tip li{margin-bottom:3px}
+
+/* CALENDAR */
+.cal{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
+.cal-head button{width:32px;height:32px;border-radius:50%;border:none;background:var(--surface2);color:var(--text);font-size:16px;font-weight:800;cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cal-dow{font-size:11px;font-weight:800;color:var(--muted);padding:4px 0}
+.cal-day{position:relative;padding:8px 0 10px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;color:var(--text)}
+.cal-day.dim{color:var(--muted);opacity:.45}
+.cal-day.today{box-shadow:inset 0 0 0 1.5px var(--purple)}
+.cal-day.sel{background:var(--btn-a);color:#fff}
+.cal-day i{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.cal-day.sel i{background:#fff}
+
+/* CHAT */
+.conv-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;margin-bottom:8px}
+.conv-row.unread{border-color:rgba(220,80,70,.35);background:rgba(220,80,70,.04)}
+.conv-body{flex:1;min-width:0}
+.conv-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px}
+.conv-name{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-time{font-size:12.5px;color:var(--muted);font-weight:700;flex-shrink:0}
+.conv-preview{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-row.unread .conv-preview{color:var(--text);font-weight:800}
+.msg{display:flex;margin-bottom:10px}
+.msg.me{justify-content:flex-end}
+.msg .bub{max-width:78%;padding:10px 14px;border-radius:18px 18px 18px 4px;background:var(--surface2);color:var(--text);font-size:14px;font-weight:600;line-height:1.45;word-break:break-word}
+.msg.me .bub{border-radius:18px 18px 4px 18px;background:var(--btn-a);color:#fff}
+.msg .t{font-size:11.5px;opacity:.6;margin-top:4px;text-align:right}
+.msg-flag{font-size:12px;font-weight:800;margin-top:6px;padding:6px 8px;border-radius:8px;background:rgba(220,80,70,.12);color:var(--danger)}
+.msg.me .msg-flag{background:rgba(255,255,255,.18);color:#fff}
+.sys{text-align:center;margin:10px 0}
+.sys span{display:inline-block;font-size:13px;color:var(--muted);font-weight:700;background:var(--surface2);padding:6px 14px;border-radius:14px;line-height:1.4}
+
+/* NOTIFICATIONS */
+.notif{display:flex;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border);cursor:pointer}
+.notif .e{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.notif b{display:block;font-size:14.5px;font-weight:800}
+.notif span{display:block;font-size:13.5px;color:var(--muted);font-weight:600;line-height:1.4}
+.notif small{font-size:12px;color:var(--muted);font-weight:700}
+.notif.unread b::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-left:6px;vertical-align:middle}
+
+/* UTILS */
+.star-btn{width:48px;height:48px;border:none;background:transparent;font-size:34px;cursor:pointer;color:var(--border);line-height:1}
+.star-btn.on{color:var(--yellow)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-ico{font-size:44px;margin-bottom:12px}
+.empty-t{font-size:18px;font-weight:800;margin-bottom:8px;color:var(--text)}
+.empty-d{font-size:14px;line-height:1.6}
+.toast{position:fixed;top:calc(var(--sat) + 70px);left:50%;transform:translateX(-50%) translateY(-12px);background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:11px 22px;border-radius:100px;font-size:14px;font-weight:800;z-index:3000;opacity:0;transition:all .28s;pointer-events:none;max-width:calc(100vw - 48px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading{text-align:center;padding:50px;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .75s linear infinite;display:inline-block}
+.tc-armed{box-shadow:0 0 0 3px rgba(234,179,8,.6)!important}
+.av{border-radius:50%;background:#5C8A6A;border:1.5px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;font-family:'Nunito',sans-serif}
+.card-menu-wrap{position:relative}
+.card-menu-btn{width:40px;height:40px;border-radius:50%;background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer}
+.card-menu-drop{display:none;position:absolute;top:42px;right:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;z-index:20}
+.card-menu-drop.open{display:block}
+.card-menu-drop button{width:100%;padding:13px 16px;background:none;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:left;cursor:pointer}
+.card-menu-drop button.destructive{color:var(--danger)}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="https://yoodle.ca/"><span class="wm">yoodle</span><span class="tag">Tutors</span></a>
-</div></header>
-<section class="hero"><div class="wrap">
-  <h1>Local tutors, coming soon.</h1>
-  <p>Yoodle Tutors will connect students and parents with tutors in their own neighbourhood. We're putting the finishing touches on it.</p>
-  <a class="btn" href="https://yoodle.ca/">Visit yoodle.ca</a>
-</div></section>
-<main><div class="wrap">
-  <p>Want to tutor in the meantime? Create a free helper profile on <a href="https://yoodle.ca/">yoodle.ca</a> and pick Tutoring.</p>
-</div></main>
-<footer><div class="wrap">&copy; 2026 Yoodle &middot; Tutors &middot; <a href="mailto:support@yoodle.ca">support@yoodle.ca</a></div></footer>
+
+<!-- ══ SIGNED OUT ══ -->
+<div id="view-auth">
+  <div class="ga-wrap">
+    <div class="ga-hdr">
+      <div class="wordmark ga-wm"><span class="ly">y</span><span class="lo1">o</span><span class="lo2">o</span><span class="ld">d</span><span class="ll">l</span><span class="le">e</span><span class="wm-tag">tutors</span></div>
+      <button class="ga-pill" onclick="openAuthSheet('signin')">Sign in</button>
+    </div>
+    <div class="ga-eyebrow">Local tutors, real neighbours</div>
+    <h1 class="ga-fork-h">What brings you here?</h1>
+    <div class="ga-fork-sub">Free to join. You pay your tutor directly.</div>
+    <button class="ga-choice" style="border:1.5px solid #F97316" onclick="openAuthSheet('learner')">
+      <div class="ga-choice-ico" style="background:#F97316">📚</div>
+      <div><div class="ga-choice-t">Find a tutor</div><div class="ga-choice-d">For me, or for my child</div></div>
+    </button>
+    <button class="ga-choice" style="border:1.5px solid rgba(46,125,82,.30)" onclick="openAuthSheet('tutor')">
+      <div class="ga-choice-ico" style="background:#8DE0A8">🎓</div>
+      <div><div class="ga-choice-t">Become a tutor</div><div class="ga-choice-d">Teach students near you or online</div></div>
+    </button>
+    <div class="ga-trust">
+      <div class="ga-step"><div class="e">🪪</div><div><b>Every tutor is ID-verified</b><span>Checked by Stripe before they can appear in search.</span></div></div>
+      <div class="ga-step"><div class="e">🛡️</div><div><b>Background checks for under-18s</b><span>Only tutors with a cleared Vulnerable Sector Check can teach children.</span></div></div>
+      <div class="ga-step"><div class="e">👪</div><div><b>Parents stay in charge</b><span>Children don't get accounts. Bookings and messages go through the parent.</span></div></div>
+    </div>
+    <div class="ga-alt">Already on Yoodle? <a onclick="openAuthSheet('signin')">Sign in with your Yoodle account</a></div>
+    <div class="auth-legal">By continuing you agree to Yoodle's <a href="https://yoodle.ca/terms">Terms of Use</a> and <a href="https://yoodle.ca/privacy">Privacy Policy</a>.<br><a href="https://yoodle.ca/">yoodle.ca</a> · <a href="mailto:support@yoodle.ca">support@yoodle.ca</a></div>
+  </div>
+  <div class="ga-dim" id="ga-dim" onclick="closeAuthSheet()"></div>
+  <div class="ga-sheet" id="ga-sheet" role="dialog" aria-modal="true" aria-labelledby="ga-sheet-h">
+    <div class="ga-grab"></div>
+    <h3 id="ga-sheet-h">Welcome back</h3>
+    <div class="ga-sheet-p" id="ga-sheet-p">Use the same account as yoodle.ca.</div>
+    <div class="auth-btns">
+      <button class="btn-google" onclick="signIn('google')">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-divider">or use your email</div>
+      <div class="magic-wrap">
+        <div class="magic-row">
+          <input class="magic-email" id="magic-email" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendEmailCode()">
+          <button class="btn-magic" id="magic-btn" onclick="sendEmailCode()">Email me a code</button>
+        </div>
+        <div class="magic-sent" id="magic-sent">Check your inbox! We sent a code to <span id="magic-addr"></span>. Not there? Check your junk folder.</div>
+        <div class="otp-wrap" id="otp-wrap">
+          <div class="otp-row">
+            <input class="otp-inp" id="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" onkeydown="if(event.key==='Enter')verifyEmailCode()">
+            <button class="btn-otp" id="otp-btn" onclick="verifyEmailCode()">Sign in</button>
+          </div>
+          <button class="otp-again" onclick="resetEmailCode()">Use a different email or resend</button>
+        </div>
+        <button class="otp-again" onclick="togglePasswordLogin()">Sign in with password</button>
+        <div class="otp-wrap" id="pw-wrap">
+          <div class="otp-row">
+            <input class="magic-email" id="pw-input" type="password" autocomplete="current-password" placeholder="Password" onkeydown="if(event.key==='Enter')signInWithPassword()">
+            <button class="btn-otp" id="pw-btn" onclick="signInWithPassword()">Sign in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="view-main">
+  <div class="top-bar">
+    <div class="wordmark top-wm"><span class="ly">y</span><span class="lo1">o</span><span class="lo2">o</span><span class="ld">d</span><span class="ll">l</span><span class="le">e</span><span class="wm-tag">tutors</span></div>
+    <div class="top-right">
+      <button class="round-btn" onclick="openNotifications()" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="dot-badge" id="notif-badge"></span>
+      </button>
+      <button class="round-btn" onclick="toggleTheme()" aria-label="Switch light/dark mode">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- FIND (learners) -->
+  <div class="app-view" id="app-find">
+    <div style="padding:12px 16px 0;flex-shrink:0">
+      <div class="seg" style="margin-bottom:10px">
+        <button id="who-me" onclick="setWho(false)">For me</button>
+        <button id="who-child" onclick="setWho(true)">For my child</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="row-btn" style="margin:0;padding:10px 14px;font-size:14px;flex:1;min-width:0" onclick="openAreaSheet()"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 <span id="find-area">Set your area</span></span><span style="color:var(--muted)">›</span></button>
+        <button class="row-btn" style="margin:0;padding:10px 14px;font-size:14px;width:auto" onclick="openFilters()">⚙️ Filters <span id="filter-count" class="tag" style="display:none"></span></button>
+      </div>
+      <button class="row-btn" style="margin:8px 0 0;padding:10px 14px;font-size:14px" onclick="openPostRequest()"><span>📣 Post what you're looking for</span><span style="color:var(--muted)">›</span></button>
+      <div id="find-sub" style="font-size:13px;font-weight:800;color:var(--muted);margin:10px 2px 0"></div>
+    </div>
+    <div class="view-scroll" id="find-list" style="padding-top:10px"></div>
+  </div>
+
+  <!-- LEARNERS (tutors browse open "looking for a tutor" requests) -->
+  <div class="app-view" id="app-learners">
+    <div style="padding:12px 16px 0;flex-shrink:0">
+      <div class="section-h">Learners looking for a tutor</div>
+      <div class="section-sub" style="margin-bottom:10px">Requests that fit your format and travel distance. Reply once to start a chat.</div>
+      <div class="seg">
+        <button id="lr-mine" onclick="setLearnerFilter(true)">My subjects &amp; grades</button>
+        <button id="lr-all" onclick="setLearnerFilter(false)">All subjects</button>
+      </div>
+    </div>
+    <div class="view-scroll" id="learners-list" style="padding-top:12px"></div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div class="app-view" id="app-sessions">
+    <div style="padding:12px 16px 0;flex-shrink:0">
+      <div class="seg">
+        <button id="st-upcoming" onclick="setSessTab('upcoming')">Upcoming</button>
+        <button id="st-requests" onclick="setSessTab('requests')">Requests <span id="req-count" style="color:var(--orange)"></span></button>
+        <button id="st-history" onclick="setSessTab('history')">History</button>
+      </div>
+    </div>
+    <div class="view-scroll" id="sess-body" style="padding-top:12px"></div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="app-view" id="app-messages">
+    <div class="view-scroll">
+      <div class="section-h">Messages</div>
+      <div class="section-sub">Keep chats and plans on Yoodle. It's how we keep everyone safe.</div>
+      <div id="conv-list"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="app-view" id="app-profile">
+    <div class="view-scroll" id="profile-body"></div>
+  </div>
+
+  <!-- TUTOR PROFILE EDITOR -->
+  <div class="app-view" id="app-tutoredit">
+    <div class="view-scroll">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <button onclick="nav('profile')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1">←</button>
+        <div class="section-h" style="margin:0">Tutor profile</div>
+      </div>
+      <div class="form-legend"><span class="req">*</span> Required</div>
+      <div class="form-g"><label class="form-lbl">Headline <span class="opt">(optional)</span></label><input class="form-inp" id="te-headline" maxlength="80" placeholder="e.g. Patient math tutor, Grades 4–10"></div>
+      <div class="form-g"><label class="form-lbl">About you <span class="req">*</span></label><textarea class="form-ta" id="te-bio" maxlength="1500" style="height:130px" placeholder="Your experience, how you teach, what learners can expect…"></textarea></div>
+      <div class="form-g"><label class="form-lbl">Subjects <span class="req">*</span></label><div class="chips" id="te-subjects"></div></div>
+      <div class="form-g"><label class="form-lbl">Grade levels <span class="req">*</span></label><div class="chips" id="te-grades"></div></div>
+      <div class="form-g"><label class="form-lbl">Hourly rate (CAD $) <span class="req">*</span></label><input class="form-inp" id="te-rate" type="number" min="0" max="500" inputmode="decimal" placeholder="e.g. 40"></div>
+      <div class="form-g"><label class="form-lbl">How you teach <span class="req">*</span></label>
+        <div class="seg"><button data-mode="in_person" onclick="teSetMode('in_person')">In person</button><button data-mode="online" onclick="teSetMode('online')">Online</button><button data-mode="both" onclick="teSetMode('both')">Both</button></div>
+      </div>
+      <div class="form-g"><label class="form-lbl">City <span class="opt">(optional)</span></label>
+        <div class="form-hint" id="te-area-hint" style="margin:0 0 8px"></div>
+        <div class="loc-wrap">
+          <input class="form-inp" id="te-area" autocomplete="off" placeholder="e.g. Toronto" oninput="teAreaInput(this.value)">
+          <div class="loc-suggestions" id="te-area-sug"></div>
+        </div>
+        <div class="loc-status" id="te-area-st">Learners see your city, never your address.</div>
+      </div>
+      <div class="form-g" id="te-travel-g"><label class="form-lbl">Travel up to <span id="te-travel-v">10</span> km <span class="opt">(optional)</span></label><input id="te-travel" type="range" min="1" max="50" value="10" style="width:100%;accent-color:var(--btn-a)" oninput="document.getElementById('te-travel-v').textContent=this.value"></div>
+      <div class="form-g"><label class="form-lbl">Availability <span class="opt">(optional)</span></label><div class="avail" id="te-avail"></div><div class="form-hint">Morning 8–12 · Afternoon 12–5 · Evening 5–9</div></div>
+      <button class="btn-primary" id="te-save" onclick="saveTutorProfile()">Save profile</button>
+      <button class="btn-text" onclick="nav('profile')">Cancel</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-i" id="ni-find" onclick="nav('find')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find
+    </button>
+    <button class="nav-i" id="ni-learners" onclick="nav('learners')" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Learners
+    </button>
+    <button class="nav-i" id="ni-sessions" onclick="nav('sessions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Sessions<span class="nav-dot" id="sess-dot"></span>
+    </button>
+    <button class="nav-i" id="ni-messages" onclick="nav('messages')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages<span class="nav-dot" id="msg-dot"></span>
+    </button>
+    <button class="nav-i" id="ni-profile" onclick="nav('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+    </button>
+  </nav>
+</div>
+
+<!-- ══ SHEETS ══ -->
+<!-- Area -->
+<div class="modal-ov" id="area-sheet" style="z-index:1100" onclick="if(event.target===this)closeOv('area-sheet')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:6px">Where are you?</div>
+    <div class="section-sub">We use this to show tutors near you. It stays on this device.</div>
+    <button class="btn-primary" style="margin-top:0" onclick="areaUseGps()">📍 Use my location</button>
+    <div style="text-align:center;font-size:13px;font-weight:800;color:var(--muted);margin:12px 0 8px">or type your area</div>
+    <div class="loc-wrap">
+      <input class="form-inp" id="area-inp" autocomplete="off" placeholder="City, neighbourhood or postal code" oninput="areaInput(this.value)">
+      <div class="loc-suggestions" id="area-sug"></div>
+    </div>
+    <div class="loc-status" id="area-st"></div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="modal-ov" id="filter-sheet" onclick="if(event.target===this)closeOv('filter-sheet')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-head"><div class="modal-title">Filters</div><button class="x-btn" onclick="closeOv('filter-sheet')">✕</button></div>
+    <div class="form-g" style="margin-top:12px"><label class="form-lbl">Subject</label><select class="form-sel" id="f-subject"></select></div>
+    <div class="form-g"><label class="form-lbl">Grade level</label><select class="form-sel" id="f-grade"></select></div>
+    <div class="form-g"><label class="form-lbl">Where</label>
+      <div class="seg"><button data-fm="" onclick="fSetMode('')">Either</button><button data-fm="in_person" onclick="fSetMode('in_person')">In person</button><button data-fm="online" onclick="fSetMode('online')">Online</button></div></div>
+    <div class="form-g"><label class="form-lbl">Within <span id="f-km-v">15</span> km</label><input id="f-km" type="range" min="1" max="50" value="15" style="width:100%;accent-color:var(--btn-a)" oninput="document.getElementById('f-km-v').textContent=this.value"></div>
+    <div class="form-g"><label class="form-lbl">Max price per hour</label><select class="form-sel" id="f-rate"><option value="">Any price</option><option>25</option><option>35</option><option>50</option><option>75</option><option>100</option></select></div>
+    <div class="form-g"><label class="form-lbl">Available</label>
+      <div class="btn-row"><select class="form-sel" id="f-day"><option value="">Any day</option></select><select class="form-sel" id="f-time"><option value="">Any time</option></select></div></div>
+    <button class="btn-primary" onclick="applyFilters()">Show tutors</button>
+    <button class="btn-text" onclick="resetFilters()">Reset filters</button>
+  </div>
+</div>
+
+<!-- Post a "looking for a tutor" request (learners) -->
+<div class="modal-ov" id="post-modal" onclick="if(event.target===this)closeOv('post-modal')">
+  <div class="modal-sheet">
+    <div class="modal-head"><div class="modal-title">What are you looking for?</div><button class="x-btn" onclick="closeOv('post-modal')">✕</button></div>
+    <div class="form-hint" style="margin:6px 0 14px">Approved, ID-verified tutors who fit your request can message you. They see your first name and neighbourhood, never your address.</div>
+    <div class="form-legend"><span class="req">*</span> Required</div>
+    <div class="form-g"><label class="form-lbl">Who is it for? <span class="req">*</span></label>
+      <div class="seg"><button id="pr-me" onclick="prSetWho(false)">For me</button><button id="pr-child" onclick="prSetWho(true)">For my child</button></div>
+      <div class="form-hint" id="pr-who-hint"></div>
+    </div>
+    <div class="form-g"><label class="form-lbl">Subject <span class="req">*</span></label><select class="form-sel" id="pr-subject"></select></div>
+    <div class="form-g"><label class="form-lbl">Grade level <span class="req">*</span></label><select class="form-sel" id="pr-grade"></select></div>
+    <div class="form-g"><label class="form-lbl">Format <span class="req">*</span></label>
+      <div class="seg"><button data-prm="either" onclick="prSetMode('either')">Either</button><button data-prm="in_person" onclick="prSetMode('in_person')">In person</button><button data-prm="online" onclick="prSetMode('online')">Online</button></div>
+    </div>
+    <div class="form-g" id="pr-area-g"><label class="form-lbl">Your area <span class="req">*</span></label>
+      <button class="row-btn" style="margin:0" onclick="openAreaSheet()"><span>📍 <span id="pr-area">Not set</span></span><span style="color:var(--muted)">Change ›</span></button>
+      <div class="form-hint">Needed so tutors who travel to you can find this request.</div>
+    </div>
+    <div class="form-g"><label class="form-lbl">Budget per hour <span class="opt">(optional)</span></label><select class="form-sel" id="pr-rate"><option value="">No set budget</option><option>25</option><option>35</option><option>50</option><option>75</option><option>100</option></select></div>
+    <div class="form-g"><label class="form-lbl">When works <span class="opt">(optional)</span></label><div class="avail" id="pr-avail"></div><div class="form-hint">Morning 8–12 · Afternoon 12–5 · Evening 5–9</div></div>
+    <div class="form-g"><label class="form-lbl">Anything else <span class="opt">(optional)</span></label><textarea class="form-ta" id="pr-note" maxlength="500" placeholder="e.g. Struggling with fractions, has a unit test in 3 weeks"></textarea>
+      <div class="form-hint">Don't include names, schools, phone numbers or addresses. Tutors will message you here on Yoodle.</div></div>
+    <button class="btn-primary" id="pr-save" onclick="postRequest()">Post request</button>
+    <button class="btn-text" onclick="closeOv('post-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Tutor replies to a request -->
+<div class="modal-ov" id="reply-modal" onclick="if(event.target===this)closeOv('reply-modal')">
+  <div class="modal-sheet">
+    <div class="modal-head"><div class="modal-title">Message <span id="rp-name"></span></div><button class="x-btn" onclick="closeOv('reply-modal')">✕</button></div>
+    <div class="box" id="rp-summary" style="margin-top:12px"></div>
+    <div class="form-g"><label class="form-lbl">Your message <span class="req">*</span></label><textarea class="form-ta" id="rp-msg" maxlength="1000" style="height:130px"></textarea>
+      <div class="form-hint">You can reply to each request once. Keep it about how you'd help, and keep contact on Yoodle.</div></div>
+    <button class="btn-primary" id="rp-send" onclick="sendRequestReply()">Send</button>
+    <button class="btn-text" onclick="closeOv('reply-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Tutor public profile -->
+<div class="modal-ov" id="tutor-modal" onclick="if(event.target===this)closeOv('tutor-modal')">
+  <div class="modal-sheet">
+    <div class="modal-head"><div class="modal-handle" style="margin:0"></div><button class="x-btn" onclick="closeOv('tutor-modal')">✕</button></div>
+    <div id="tutor-body"></div>
+  </div>
+</div>
+
+<!-- Booking -->
+<div class="modal-ov" id="book-modal" onclick="if(event.target===this)closeOv('book-modal')">
+  <div class="modal-sheet">
+    <div class="modal-head"><div class="modal-title">Book <span id="bk-name"></span></div><button class="x-btn" onclick="closeOv('book-modal')">✕</button></div>
+    <div class="form-g" style="margin-top:14px"><label class="form-lbl">Is this session for you or your child?</label>
+      <div class="seg"><button id="bk-me" onclick="bkSetWho(false)">For me</button><button id="bk-child" onclick="bkSetWho(true)">For my child</button></div>
+      <div class="form-hint" id="bk-who-hint"></div>
+    </div>
+    <div class="form-g"><label class="form-lbl">Subject</label><select class="form-sel" id="bk-subject"></select></div>
+    <div class="form-g"><label class="form-lbl">Grade level</label><select class="form-sel" id="bk-grade"></select></div>
+    <div class="form-g"><label class="form-lbl" id="bk-note-l">Note for the tutor (optional)</label><textarea class="form-ta" id="bk-note" maxlength="500" placeholder="What would you like help with?"></textarea><div class="form-hint" id="bk-note-hint"></div></div>
+    <div class="form-g" id="bk-label-g" style="display:none"><label class="form-lbl">Private label (optional)</label><input class="form-inp" id="bk-label" maxlength="40" placeholder="e.g. Older one, or a nickname"><div class="form-hint">🔒 Only you see this. It helps if you book for more than one child. The tutor never sees it.</div></div>
+    <div class="form-g"><label class="form-lbl">Type</label>
+      <div class="seg"><button id="bk-trial" onclick="bkSetKind('trial')">Trial session</button><button id="bk-weekly" onclick="bkSetKind('weekly')">Weekly</button></div></div>
+    <div class="form-g" id="bk-weeks-g" style="display:none"><label class="form-lbl">For <span id="bk-weeks-v">4</span> weeks</label><input id="bk-weeks" type="range" min="2" max="12" value="4" style="width:100%;accent-color:var(--btn-a)" oninput="document.getElementById('bk-weeks-v').textContent=this.value;bkSummary()"></div>
+    <div class="form-g" id="bk-mode-g"><label class="form-lbl">Where</label>
+      <div class="seg"><button id="bk-inp" onclick="bkSetMode('in_person')">In person</button><button id="bk-onl" onclick="bkSetMode('online')">Online</button></div></div>
+    <div class="form-g"><label class="form-lbl">First session</label>
+      <div class="btn-row"><input class="form-inp" id="bk-start" type="datetime-local" onchange="bkSummary()"><select class="form-sel" id="bk-dur" onchange="bkSummary()" style="max-width:130px"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></div>
+      <div class="form-hint" id="bk-avail-hint"></div>
+    </div>
+    <div class="box" id="bk-summary"></div>
+    <div id="bk-safety"></div>
+    <label class="check-row"><input type="checkbox" id="bk-ack" onchange="document.getElementById('bk-go').disabled=!this.checked"> <span>I've read the safety guidelines above and will follow them.</span></label>
+    <button class="btn-primary" id="bk-go" disabled onclick="submitBooking()">Send booking request</button>
+    <div class="form-hint" style="text-align:center">The tutor confirms or declines. Payment is arranged directly with your tutor.</div>
+  </div>
+</div>
+
+<!-- Session detail -->
+<div class="modal-ov" id="session-modal" onclick="if(event.target===this)closeOv('session-modal')">
+  <div class="modal-sheet"><div id="session-body"></div></div>
+</div>
+
+<!-- Booking request detail (tutor/learner) -->
+<div class="modal-ov" id="booking-modal" onclick="if(event.target===this)closeOv('booking-modal')">
+  <div class="modal-sheet"><div id="booking-body"></div></div>
+</div>
+
+<!-- Complete session -->
+<div class="modal-ov" id="complete-modal" onclick="if(event.target===this)closeOv('complete-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:6px">Mark session complete</div>
+    <div class="section-sub">This logs the session at the agreed rate. Notes describe the <b>session</b>, not the student. No names, appearance or personal details.</div>
+    <div class="form-g"><label class="form-lbl">What we covered</label><textarea class="form-ta" id="cm-covered" maxlength="1000" placeholder="e.g. Long division with remainders; word problems p. 42–44"></textarea></div>
+    <div class="form-g"><label class="form-lbl">What to work on next</label><textarea class="form-ta" id="cm-next" maxlength="1000" placeholder="e.g. 10 practice questions from worksheet B before next week"></textarea></div>
+    <button class="btn-primary" id="cm-go" onclick="submitComplete()">Complete &amp; log session</button>
+    <button class="btn-text" onclick="closeOv('complete-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Review -->
+<div class="modal-ov" id="review-modal" onclick="if(event.target===this)closeOv('review-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:6px">Review <span id="rv-name"></span></div>
+    <div class="section-sub">Your review is public on the tutor's profile. Talk about the tutoring, and please don't name or describe your child.</div>
+    <div id="rv-stars" style="display:flex;justify-content:center;gap:4px;margin-bottom:14px"></div>
+    <div class="form-g"><textarea class="form-ta" id="rv-body" maxlength="1000" placeholder="What went well? Anything others should know?"></textarea></div>
+    <button class="btn-primary" id="rv-go" disabled onclick="submitReview()">Post review</button>
+    <button class="btn-text" onclick="closeOv('review-modal')">Not now</button>
+  </div>
+</div>
+
+<!-- Reschedule -->
+<div class="modal-ov" id="resched-modal" onclick="if(event.target===this)closeOv('resched-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:6px">Reschedule session</div>
+    <div class="section-sub">Sessions can be moved up to 24 hours before they start. We'll let the other person know.</div>
+    <div class="form-g"><label class="form-lbl">New time</label><input class="form-inp" id="rs-start" type="datetime-local"></div>
+    <button class="btn-primary" onclick="submitReschedule()">Move session</button>
+    <button class="btn-text" onclick="closeOv('resched-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Cancel -->
+<div class="modal-ov" id="cancel-modal" onclick="if(event.target===this)closeOv('cancel-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:6px" id="cx-title">Cancel session?</div>
+    <div class="section-sub" id="cx-desc"></div>
+    <div class="form-g"><label class="form-lbl">Reason (shared with the other person)</label><textarea class="form-ta" id="cx-reason" maxlength="300" style="height:80px" placeholder="Optional"></textarea></div>
+    <button class="btn-primary" style="background:var(--danger)" id="cx-go" onclick="submitCancel()">Yes, cancel</button>
+    <button class="btn-text" onclick="closeOv('cancel-modal')">Keep it</button>
+  </div>
+</div>
+
+<!-- Chat -->
+<div class="modal-ov" id="chat-modal" onclick="if(event.target===this)closeChat()">
+  <div class="modal-sheet" style="height:85dvh;display:flex;flex-direction:column;padding:0">
+    <div style="padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:12px">
+      <div id="chat-av" class="av" style="width:32px;height:32px;font-size:14px">?</div>
+      <div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="chat-name"></div><div style="font-size:12.5px;color:var(--muted);font-weight:700" id="chat-sub"></div></div>
+      <div class="card-menu-wrap">
+        <button class="card-menu-btn" onclick="event.stopPropagation();document.getElementById('chat-menu').classList.toggle('open')" aria-label="More options">⋮</button>
+        <div class="card-menu-drop" id="chat-menu">
+          <button onclick="closeOv('chat-menu');openReport(chat.otherId,chat.otherName,chat.convId)">Report</button>
+          <button class="destructive" onclick="closeOv('chat-menu');openBlock(chat.otherId,chat.otherName)">Block</button>
+        </div>
+      </div>
+      <button class="x-btn" style="width:40px;height:40px" onclick="closeChat()">✕</button>
+    </div>
+    <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch"></div>
+    <div id="chat-bar" style="padding:12px 16px calc(12px + var(--sab));border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--surface)">
+      <input id="chat-input" type="text" maxlength="2000" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()" style="flex:1;min-width:0;padding:12px 16px;border-radius:100px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none">
+      <button onclick="sendMessage()" aria-label="Send" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));border:none;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="modal-ov" id="notif-sheet" onclick="if(event.target===this)closeOv('notif-sheet')">
+  <div class="modal-sheet" style="max-height:85dvh">
+    <div class="modal-head"><div class="modal-title">Notifications</div><button class="x-btn" onclick="closeOv('notif-sheet')">✕</button></div>
+    <div style="text-align:right;margin-bottom:6px"><button class="otp-again" onclick="markAllRead()">Mark all as read</button></div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<!-- Report -->
+<div class="modal-ov" id="report-modal" style="z-index:1200" onclick="if(event.target===this)closeOv('report-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:4px">Report</div>
+    <div class="section-sub" id="report-sub"></div>
+    <div id="report-reasons" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+    <div class="form-g"><label class="form-lbl">What happened? (optional)</label><textarea class="form-ta" id="report-details" maxlength="1000" placeholder="Add any details that help us review this…"></textarea></div>
+    <label class="check-row"><input type="checkbox" id="report-block"> <span>Also block this person</span></label>
+    <button class="btn-primary" id="report-go" onclick="submitReport()">Send report</button>
+    <button class="btn-text" onclick="closeOv('report-modal')">Cancel</button>
+    <div class="form-hint" style="text-align:center">We review reports within 24 hours. The person isn't told who reported them. If anyone is in danger, call 911.</div>
+  </div>
+</div>
+
+<!-- Block -->
+<div class="modal-ov" id="block-modal" style="z-index:1200" onclick="if(event.target===this)closeOv('block-modal')">
+  <div class="modal-sheet" style="text-align:center">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:8px" id="block-title">Block?</div>
+    <div class="section-sub">They can't message or book you, and you won't see each other on Yoodle or Yoodle Tutors. They aren't told. Unblock anytime in Profile.</div>
+    <button class="btn-primary" style="background:var(--danger)" onclick="confirmBlock()">Block</button>
+    <button class="btn-text" onclick="closeOv('block-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Safety guidelines (from Profile) -->
+<div class="modal-ov" id="safety-modal" onclick="if(event.target===this)closeOv('safety-modal')">
+  <div class="modal-sheet">
+    <div class="modal-head"><div class="modal-title">Session safety</div><button class="x-btn" onclick="closeOv('safety-modal')">✕</button></div>
+    <div id="safety-body" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- Onboarding gate: role + 18+ + terms (once per account) -->
+<div class="gate" id="onboard-gate">
+  <div class="modal-sheet">
+    <div class="modal-title" style="margin-bottom:6px">Welcome to Yoodle Tutors</div>
+    <div class="section-sub">How will you use it? You can't switch later without contacting support.</div>
+    <button class="ga-choice" id="ob-learner" style="border:1.5px solid var(--border);margin-bottom:10px" onclick="obPick('learner')">
+      <div class="ga-choice-ico" style="background:#F97316">📚</div><div><div class="ga-choice-t">I'm looking for a tutor</div><div class="ga-choice-d">For myself, or for my child</div></div>
+    </button>
+    <button class="ga-choice" id="ob-tutor" style="border:1.5px solid var(--border)" onclick="obPick('tutor')">
+      <div class="ga-choice-ico" style="background:#8DE0A8">🎓</div><div><div class="ga-choice-t">I want to tutor</div><div class="ga-choice-d">ID check required · background check to teach under-18s</div></div>
+    </button>
+    <label class="check-row"><input type="checkbox" id="ob-adult" onchange="obCheck()"> <span>I'm 18 or older. Accounts are for adults only: parents book for their children; children don't get accounts.</span></label>
+    <label class="check-row"><input type="checkbox" id="ob-terms" onchange="obCheck()"> <span>I agree to the <a href="https://yoodle.ca/terms" target="_blank" rel="noopener" style="color:var(--purple)">Terms of Use</a> and <a href="javascript:void 0" onclick="event.preventDefault();openSafety()" style="color:var(--purple)">session safety guidelines</a>.</span></label>
+    <button class="btn-primary" id="ob-go" disabled onclick="saveOnboarding()">Continue</button>
+    <button class="btn-text" onclick="signOut()">Not now, sign out</button>
+  </div>
+</div>
+
+<!-- Suspended -->
+<div class="gate" id="suspended-gate" style="z-index:2600;align-items:center;padding:24px">
+  <div class="modal-sheet" style="border-radius:24px;text-align:center">
+    <div class="modal-title" style="margin-bottom:8px">Account suspended</div>
+    <div class="section-sub">Your Yoodle account has been suspended for breaking our <a href="https://yoodle.ca/terms" target="_blank" rel="noopener" style="color:var(--purple)">Terms of Use</a>. If you think this is a mistake, email <a href="mailto:support@yoodle.ca" style="color:var(--purple)">support@yoodle.ca</a>.</div>
+    <button class="btn-primary" onclick="signOut()">Sign out</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://pyzugtltkbpcxvokdmps.supabase.co';
+const SUPABASE_ANON='sb_publishable_9qnjqRwusYBArg79bBv81w_kauJZPBZ'; // same project as yoodle.ca
+
+const SUBJECTS=[
+  {k:'Math',e:'➗'},{k:'English',e:'📖'},{k:'French',e:'🥖'},{k:'Science',e:'🔬'},{k:'Biology',e:'🧬'},
+  {k:'Chemistry',e:'⚗️'},{k:'Physics',e:'🧲'},{k:'History',e:'🏛️'},{k:'Geography',e:'🗺️'},
+  {k:'Computer science',e:'💻'},{k:'Reading & writing',e:'✏️'},{k:'ESL',e:'🗣️'},{k:'Spanish',e:'💃'},
+  {k:'Music',e:'🎵'},{k:'Art',e:'🎨'},{k:'Test prep',e:'📝'},{k:'Study skills',e:'🧠'},{k:'Other',e:'✨'}
+];
+// Grade bands, not exact grades or ages — enough to match a tutor, nothing that identifies a child.
+const GRADES=['JK – Grade 3','Grades 4 – 6','Grades 7 – 8','Grades 9 – 10','Grades 11 – 12','College / University','Adult learner'];
+const DAYS=[['mon','Mon'],['tue','Tue'],['wed','Wed'],['thu','Thu'],['fri','Fri'],['sat','Sat'],['sun','Sun']];
+const TIMES=[['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']];
+const REPORT_REASONS=['Scam or asking for money','Asked to move off the app','Inappropriate with a child or student','Harassment or hate','Fake profile or credentials','No-show or unreliable','Other'];
+const CANCEL_HOURS=24;
+
+/* ── SAFETY GUIDELINES (shown at booking, in Profile and during onboarding) ── */
+const SAFETY_ALL=['Keep messages and plans on Yoodle until you\'ve met. It keeps a record if something goes wrong.','Never pay in advance with gift cards, crypto or wire transfers. Pay your tutor after the session, the way you agreed.','For in-person sessions, meet at home with someone else around, or in a public place like a library.','Tell someone when and where your session is.','Report anything that feels off. We review every report within 24 hours.'];
+const SAFETY_MINORS_IN_PERSON=['A parent or guardian stays home or on site for the whole session.','Sessions happen in a shared space, like the kitchen table or living room, with the door open.','The tutor never drives the child anywhere or meets them alone somewhere else.','All contact goes through the parent\'s account. Tutors don\'t message, call or follow the child on social media.','The parent handles scheduling and payment.'];
+const SAFETY_MINORS_ONLINE=['A parent or guardian is nearby and can see and hear the session.','The child joins from a shared space using a link the parent opens, not a private chat or account.','All contact goes through the parent\'s account. Tutors don\'t message or follow the child on social media.','Sessions aren\'t recorded unless the parent agrees in writing first.'];
+function safetyHtml(forChild,mode){
+  const li=a=>`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+  let h=`<div class="safety-tip"><b>🛡️ Session safety</b>${li(SAFETY_ALL)}</div>`;
+  if(forChild){
+    h+=`<div class="safety-tip" style="--tip-bg:var(--kid-soft);--tip-bd:var(--kid-line);--tip-tx:var(--text)"><b>👪 Rules for sessions with under-18s${mode==='online'?' (online)':mode==='in_person'?' (in person)':''}</b>${li(mode==='online'?SAFETY_MINORS_ONLINE:SAFETY_MINORS_IN_PERSON)}<div style="margin-top:6px">Only tutors with a cleared Vulnerable Sector Check can book sessions with children.</div></div>`;
+  }
+  return h;
+}
+function openSafety(){
+  document.getElementById('safety-body').innerHTML=safetyHtml(false)
+    +`<div class="act-h" style="margin-top:4px">With children: in person</div>`+safetyHtml(true,'in_person').replace(/^<div class="safety-tip">[\s\S]*?<\/div>/,'')
+    +`<div class="act-h">With children: online</div>`+safetyHtml(true,'online').replace(/^<div class="safety-tip">[\s\S]*?<\/div>/,'');
+  openOv('safety-modal');
+}
+
+/* ── THEME (same as yoodle.ca; shares the saved choice key) ── */
+function setTheme(n){document.body.classList.toggle('theme-sage-dark',n!=='sage-light');try{localStorage.setItem('yoodle-theme',n);}catch(e){}}
+function toggleTheme(){setTheme(document.body.classList.contains('theme-sage-dark')?'sage-light':'sage-dark');}
+try{setTheme(localStorage.getItem('yoodle-theme')||'sage-dark');}catch(e){setTheme('sage-dark');}
+
+/* ── SHARED HELPERS (same names and behaviour as yoodle.ca) ── */
+function openOv(id){document.getElementById(id)?.classList.add('open');}
+function closeOv(id){document.getElementById(id)?.classList.remove('open');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+function spin(){return'<div class="loading"><div class="spinner"></div></div>';}
+function emptyState(ico,t,d){return`<div class="empty"><div class="empty-ico">${ico}</div><div class="empty-t">${t}</div><div class="empty-d">${d}</div></div>`;}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// For values inside onclick="fn('…')": escape for the JS string first, then for the HTML attribute
+function jsq(s){return esc(String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"));}
+function linkify(s){return s.replace(/(https?:\/\/[^\s<&]+)/gi,u=>`<a href="${u}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;word-break:break-all">${u}</a>`);}
+function timeAgo(d){const m=Math.floor((Date.now()-new Date(d).getTime())/60000);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+function avatar(name,size=36,fs=14){return`<div class="av" style="width:${size}px;height:${size}px;font-size:${fs}px">${esc(((name||'?')[0]||'?').toUpperCase())}</div>`;}
+function money(n){n=+n||0;return'$'+(Number.isInteger(n)?n:n.toFixed(2));}
+function fmtWhen(d){return new Date(d).toLocaleString('en-CA',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+function fmtTime(d){return new Date(d).toLocaleTimeString('en-CA',{hour:'numeric',minute:'2-digit'});}
+function subjEmoji(k){return(SUBJECTS.find(s=>s.k===k)||{}).e||'📘';}
+function modeLabel(m){return m==='in_person'?'In person':m==='online'?'Online':'In person & online';}
+function stars(r){r=Math.round(+r||0);return'★'.repeat(r)+'☆'.repeat(5-r);}
+function haversineKm(a,b,c,d){const R=6371,dLat=(c-a)*Math.PI/180,dLng=(d-b)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function toLocalInput(d){const z=new Date(d);z.setMinutes(z.getMinutes()-z.getTimezoneOffset());return z.toISOString().slice(0,16);}
+// "Tap again to confirm" for risky buttons
+function tapConfirm(btn,prompt,action){
+  const armed=+btn.dataset.armedAt||0,now=Date.now();
+  if(armed&&now-armed<450)return;
+  if(armed){tapConfirmReset(btn);return action();}
+  btn.dataset.tcLabel=btn.innerHTML;btn.dataset.armedAt=now;btn.innerHTML=prompt;btn.classList.add('tc-armed');
+  btn._tcTimer=setTimeout(()=>tapConfirmReset(btn),4000);
+}
+function tapConfirmReset(btn){if(!btn||!btn.dataset.armedAt)return;clearTimeout(btn._tcTimer);btn.innerHTML=btn.dataset.tcLabel;delete btn.dataset.armedAt;btn.classList.remove('tc-armed');}
+document.addEventListener('click',()=>document.querySelectorAll('.card-menu-drop.open').forEach(m=>m.classList.remove('open')));
+// RPC that returns {ok,reason} — shows a plain-words error and returns null on failure
+const REASONS={not_learner:'Only learner accounts can book.',safety_ack:'Please confirm the safety guidelines.',tutor_unavailable:'This tutor isn\'t taking bookings right now.',blocked:'You can\'t book this person.',not_cleared_for_minors:'This tutor isn\'t cleared to teach under-18s.',subject_or_grade:'Pick a subject and grade this tutor teaches.',mode:'This tutor doesn\'t offer that format.',start_time:'Pick a start time at least 2 hours from now.',weeks:'Weekly bookings are 2–12 weeks.',already_requested:'You already have a pending request with this tutor.',not_found:'Not found. It may have changed. Pull to refresh.',not_pending:'This request was already answered.',start_passed:'The requested start time has passed. Ask the learner to send a new request.',closed:'This booking is already closed.',not_cancellable:'This session can\'t be cancelled any more.',not_scheduled:'This session isn\'t scheduled any more.',inside_window:`Less than ${CANCEL_HOURS} hours to go. You can cancel, but not reschedule.`,not_started:'You can complete a session once it has started.',rating:'Pick 1–5 stars.',no_completed_session:'You can review after a completed session.',incomplete:'Add a bio, subjects, grades and rate first.',area_needed:'Set your area so in-person tutors can find you, or choose Online.',note_contact:'Please take phone numbers, emails and social handles out of your note. Tutors will message you on Yoodle.',too_many_requests:'You can have 3 open requests at a time. Close one from your Profile first.',not_live:'Your listing needs to be live (approved and ID-verified) to reply to learners.',message_length:'Write a message (up to 1000 characters).',request_closed:'This request has closed.',request_not_fit:'This request doesn\'t match your format, travel distance or under-18 clearance.',already_responded:'You\'ve already replied to this request.',reply_limit:'You\'ve replied to 20 requests today. Try again tomorrow.',no_profile:'Save your tutor profile first.',bad_path:'Upload failed. Try again.',no_profile_or_cleared:'Save your tutor profile first.',suspended:'Your account is suspended.',not_signed_in:'Please sign in again.'};
+async function rpc(name,args){
+  const{data,error}=await sb.rpc(name,args||{});
+  if(error){const m=(error.message||'').match(/\b(suspended|not_signed_in|tutor_unavailable|blocked)\b/);toast('❌ '+(m?REASONS[m[1]]:error.message));return null;}
+  if(data&&data.ok===false){toast('⚠️ '+(REASONS[data.reason]||data.reason));return null;}
+  return data??{};
+}
+
+/* ── STATE ── */
+let sb,me=null,ME=null,ROLE=null; // ME = tutor_me(): {member,tutor,id_verified,suspended}
+let blockedIds=new Set();
+let findState={forChild:false,subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''};
+let area=null; // {lat,lng,label} — this device only
+try{area=JSON.parse(localStorage.getItem('yt_area')||'null');}catch(e){}
+try{Object.assign(findState,JSON.parse(localStorage.getItem('yt_find')||'{}'));}catch(e){}
+
+/* ── START-UP ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+  sb.auth.getSession().then(({data:{session}})=>{if(session)startApp(session);});
+  sb.auth.onAuthStateChange((_e,session)=>{if(session)startApp(session);else{me=null;_startedFor=null;showAuth();}});
+  fillSelects();
+});
+let _startedFor=null;
+function showAuth(){document.getElementById('view-auth').style.display='flex';document.getElementById('view-main').style.display='none';}
+async function startApp(session){
+  me=session.user;
+  if(_startedFor===me.id)return;
+  _startedFor=me.id;
+  document.getElementById('view-auth').style.display='none';
+  document.getElementById('view-main').style.display='flex';
+  closeAuthSheet();
+  await loadMe();
+  if(!ME)return;
+  if(ME.suspended){openOv('suspended-gate');return;}
+  if(!ME.member){openOnboarding();return;}
+  enterApp();
+}
+async function loadMe(){
+  const{data,error}=await sb.rpc('tutor_me');
+  if(error){document.getElementById('view-main').innerHTML=emptyState('🔌','Yoodle Tutors isn\'t set up yet','The database migration hasn\'t been run on this Supabase project. ('+esc(error.message)+')');ME=null;return;}
+  ME=data;ROLE=ME.member?.role||null;
+}
+function enterApp(){
+  document.getElementById('ni-find').style.display=ROLE==='learner'?'flex':'none';
+  document.getElementById('ni-learners').style.display=ROLE==='tutor'?'flex':'none';
+  loadBlocked();subscribeRealtime();refreshBadges();
+  nav(ROLE==='learner'?'find':'sessions');
+  // Reminders also fire when the app is open: check every 5 min (server creates them; this just refreshes the bell)
+  setInterval(refreshBadges,5*60*1000);
+}
+async function loadBlocked(){
+  try{const{data}=await sb.rpc('my_blocked_ids');blockedIds=new Set((data||[]).map(r=>typeof r==='string'?r:(r?.my_blocked_ids||r?.id)).filter(Boolean));}catch(e){}
+}
+
+/* ── AUTH (same flows as yoodle.ca) ── */
+function openAuthSheet(mode){
+  try{if(mode==='learner'||mode==='tutor')localStorage.setItem('yt_intent',mode);}catch(e){}
+  const h=document.getElementById('ga-sheet-h'),p=document.getElementById('ga-sheet-p');
+  if(mode==='learner'){h.textContent='Find a tutor';p.textContent='Sign in or create a free account. Already on yoodle.ca? Use the same account.';}
+  else if(mode==='tutor'){h.textContent='Become a tutor';p.textContent='Sign in or create a free account. Next you\'ll set up your tutor profile and verify your ID.';}
+  else{h.textContent='Welcome back';p.textContent='Use the same account as yoodle.ca.';}
+  openOv('ga-dim');openOv('ga-sheet');
+}
+function closeAuthSheet(){closeOv('ga-dim');closeOv('ga-sheet');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuthSheet();});
+// Trailing slash so the URL matches the "<origin>/**" entries in Supabase's redirect allow list;
+// an unlisted URL makes Supabase fall back to the Site URL (yoodle.ca).
+const AUTH_RETURN=window.location.origin+'/';
+async function signIn(provider){await sb.auth.signInWithOAuth({provider,options:{redirectTo:AUTH_RETURN}});}
+async function sendEmailCode(){
+  const email=document.getElementById('magic-email').value.trim();
+  if(!email.includes('@'))return toast('Enter a valid email address');
+  const btn=document.getElementById('magic-btn');btn.disabled=true;btn.textContent='Sending…';
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:AUTH_RETURN}});
+  btn.textContent='Email me a code';
+  if(error){btn.disabled=false;return toast('❌ '+error.message);}
+  document.getElementById('magic-addr').textContent=email;
+  document.getElementById('magic-sent').style.display='block';
+  document.getElementById('magic-email').closest('.magic-row').style.display='none';
+  document.getElementById('otp-wrap').style.display='flex';
+  setTimeout(()=>document.getElementById('otp-code').focus(),60);
+}
+async function verifyEmailCode(){
+  const email=document.getElementById('magic-email').value.trim();
+  const token=document.getElementById('otp-code').value.replace(/\D/g,'');
+  if(token.length<6)return toast('Enter the code from your email');
+  const btn=document.getElementById('otp-btn');btn.disabled=true;btn.textContent='Checking…';
+  const{error}=await sb.auth.verifyOtp({email,token,type:'email'});
+  btn.disabled=false;btn.textContent='Sign in';
+  if(error)toast(/expired|invalid/i.test(error.message)?'❌ That code is wrong or expired. Request a new one':'❌ '+error.message);
+}
+function resetEmailCode(){
+  document.getElementById('otp-wrap').style.display='none';document.getElementById('magic-sent').style.display='none';
+  document.getElementById('otp-code').value='';document.getElementById('magic-email').closest('.magic-row').style.display='flex';
+  const b=document.getElementById('magic-btn');b.disabled=false;b.textContent='Email me a code';
+}
+function togglePasswordLogin(){const w=document.getElementById('pw-wrap');w.style.display=w.style.display==='flex'?'none':'flex';}
+async function signInWithPassword(){
+  const email=document.getElementById('magic-email').value.trim(),password=document.getElementById('pw-input').value;
+  if(!email.includes('@'))return toast('Enter your email above');
+  if(!password)return toast('Enter your password');
+  const{error}=await sb.auth.signInWithPassword({email,password});
+  if(error)toast(/invalid/i.test(error.message)?'❌ Wrong email or password':'❌ '+error.message);
+}
+async function signOut(){if(sb)await sb.auth.signOut();location.reload();}
+
+/* ── ONBOARDING: role, 18+, terms ── */
+let obRole=null;
+function openOnboarding(){
+  try{const i=localStorage.getItem('yt_intent');if(i==='learner'||i==='tutor')obPick(i);}catch(e){}
+  openOv('onboard-gate');
+}
+function obPick(r){
+  obRole=r;
+  ['learner','tutor'].forEach(x=>{const b=document.getElementById('ob-'+x);b.style.borderColor=x===r?'var(--purple)':'var(--border)';b.style.boxShadow=x===r?'0 0 0 2px var(--purple)':'none';});
+  obCheck();
+}
+function obCheck(){document.getElementById('ob-go').disabled=!(obRole&&document.getElementById('ob-adult').checked&&document.getElementById('ob-terms').checked);}
+async function saveOnboarding(){
+  const btn=document.getElementById('ob-go');btn.disabled=true;btn.textContent='Saving…';
+  const now=new Date().toISOString();
+  const{error}=await sb.from('tutor_members').insert({profile_id:me.id,role:obRole,adult_confirmed_at:now,terms_accepted_at:now});
+  if(!error&&obRole==='tutor')await sb.from('tutor_profiles').insert({profile_id:me.id});
+  btn.textContent='Continue';
+  if(error){btn.disabled=false;return toast('❌ '+error.message);}
+  try{localStorage.removeItem('yt_intent');}catch(e){}
+  closeOv('onboard-gate');
+  await loadMe();enterApp();
+  if(ROLE==='tutor'){toast('👋 Set up your tutor profile to get started');nav('tutoredit');}
+  else if(!area)openAreaSheet();
+}
+
+/* ── NAV ── */
+function nav(view){
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('active'));
+  document.getElementById('app-'+view)?.classList.add('active');
+  document.getElementById('ni-'+(view==='tutoredit'?'profile':view))?.classList.add('active');
+  document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open'));
+  if(view==='find')renderFind();
+  if(view==='learners')renderLearners();
+  if(view==='sessions')loadSessions();
+  if(view==='messages')loadConversations();
+  if(view==='profile')renderProfile();
+  if(view==='tutoredit')openTutorEditor();
+}
+
+/* ── ADDRESS SEARCH (Nominatim, same as yoodle.ca) ── */
+async function geoFetch(path){const r=await fetch('https://nominatim.openstreetmap.org/'+path,{headers:{'Accept-Language':'en'}});return r.json();}
+function areaFormat(item){const a=item.address||{};
+  const main=a.neighbourhood||a.suburb||a.quarter||a.city||a.town||a.village||a.postcode||item.display_name.split(',')[0];
+  const city=a.city||a.town||a.village||a.municipality||'';
+  return{main,sub:[main!==city?city:'',a.state,(a.country_code||'').toUpperCase()].filter(Boolean).join(', '),label:[main,main!==city?city:''].filter(Boolean).join(', ')};}
+// City-level result: "Toronto, Ontario". Used where we only want a city, not a neighbourhood.
+function cityFormat(item){const a=item.address||{};
+  const main=a.city||a.town||a.village||a.municipality||a.hamlet||item.name||item.display_name.split(',')[0];
+  return{main,sub:[a.state,(a.country_code||'').toUpperCase()].filter(Boolean).join(', '),label:[main,a.state].filter(Boolean).join(', ')};}
+function makeAddrSearch(sugId,statusId,onPick,cityOnly){
+  let timer=null,data=[];
+  const fmt=cityOnly?cityFormat:areaFormat;
+  const sug=()=>document.getElementById(sugId),st=()=>document.getElementById(statusId);
+  return{
+    input(val){clearTimeout(timer);if(val.length<3){sug().classList.remove('open');return;}
+      st().textContent='Searching…';
+      timer=setTimeout(async()=>{
+        try{data=await geoFetch(`search?q=${encodeURIComponent(val)}&format=json&addressdetails=1&limit=6&countrycodes=ca,us${cityOnly?'&featureType=city':''}`);}catch(e){st().textContent='Could not search. Check your connection';return;}
+        if(cityOnly){const seen=new Set();data=data.filter(it=>{const l=cityFormat(it).label;if(seen.has(l))return false;seen.add(l);return true;});}
+        if(!data.length){sug().classList.remove('open');st().textContent=cityOnly?'No cities found. Check the spelling':'No places found. Try a city or postal code';return;}
+        st().textContent='';
+        sug().innerHTML=data.map((it,i)=>{const f=fmt(it);return`<div class="loc-suggestion" data-i="${i}"><div class="sug-main">${esc(f.main)}</div><div class="sug-sub">${esc(f.sub)}</div></div>`;}).join('');
+        sug().querySelectorAll('.loc-suggestion').forEach(el=>el.onclick=()=>{const it=data[+el.dataset.i];sug().classList.remove('open');onPick({lat:+it.lat,lng:+it.lon,label:fmt(it).label});});
+        sug().classList.add('open');
+      },400);
+    }
+  };
+}
+const areaSearch=makeAddrSearch('area-sug','area-st',p=>setArea(p));
+function areaInput(v){areaSearch.input(v);}
+function openAreaSheet(){document.getElementById('area-inp').value='';document.getElementById('area-st').textContent='';openOv('area-sheet');}
+function areaUseGps(){
+  if(!navigator.geolocation)return toast('📍 Location isn\'t available on this device. Type your area');
+  const st=document.getElementById('area-st');st.textContent='Getting your location…';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=+pos.coords.latitude.toFixed(3),lng=+pos.coords.longitude.toFixed(3);
+    let label='Near you';
+    try{const d=await geoFetch(`reverse?lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&format=json`);label=areaFormat(d).label||label;}catch(e){}
+    setArea({lat,lng,label});
+  },()=>{st.textContent='Location denied. Type your area instead';},{timeout:10000});
+}
+function setArea(p){
+  area={lat:+(+p.lat).toFixed(3),lng:+(+p.lng).toFixed(3),label:p.label}; // ~100 m is plenty for distance
+  try{localStorage.setItem('yt_area',JSON.stringify(area));}catch(e){}
+  closeOv('area-sheet');
+  document.getElementById('pr-area').textContent=area.label;
+  if(document.getElementById('app-find').classList.contains('active'))renderFind();
+  else toast('📍 Area set: '+p.label);
+}
+
+/* ══ FIND A TUTOR ══ */
+function fillSelects(){
+  const opt=(v,t)=>`<option value="${esc(v)}">${esc(t)}</option>`;
+  document.getElementById('f-subject').innerHTML=opt('','Any subject')+SUBJECTS.map(s=>opt(s.k,s.e+' '+s.k)).join('');
+  document.getElementById('f-grade').innerHTML=opt('','Any grade level')+GRADES.map(g=>opt(g,g)).join('');
+  document.getElementById('f-day').innerHTML=opt('','Any day')+DAYS.map(([k,l])=>opt(k,l)).join('');
+  document.getElementById('f-time').innerHTML=opt('','Any time')+TIMES.map(([k,l])=>opt(k,l)).join('');
+  document.getElementById('pr-subject').innerHTML=opt('','Pick a subject')+SUBJECTS.map(s=>opt(s.k,s.e+' '+s.k)).join('');
+  document.getElementById('pr-grade').innerHTML=opt('','Pick a grade level')+GRADES.map(g=>opt(g,g)).join('');
+}
+function setWho(child){findState.forChild=child;saveFind();renderFind();}
+function saveFind(){try{localStorage.setItem('yt_find',JSON.stringify(findState));}catch(e){}}
+function openFilters(){
+  const f=findState;
+  document.getElementById('f-subject').value=f.subject;document.getElementById('f-grade').value=f.grade;
+  document.getElementById('f-km').value=f.km;document.getElementById('f-km-v').textContent=f.km;
+  document.getElementById('f-rate').value=f.maxRate;document.getElementById('f-day').value=f.day;document.getElementById('f-time').value=f.time;
+  fSetMode(f.mode);openOv('filter-sheet');
+}
+let _fMode='';
+function fSetMode(m){_fMode=m;document.querySelectorAll('[data-fm]').forEach(b=>b.classList.toggle('on',b.dataset.fm===m));}
+function applyFilters(){
+  Object.assign(findState,{subject:document.getElementById('f-subject').value,grade:document.getElementById('f-grade').value,mode:_fMode,
+    km:+document.getElementById('f-km').value,maxRate:document.getElementById('f-rate').value,day:document.getElementById('f-day').value,time:document.getElementById('f-time').value});
+  saveFind();closeOv('filter-sheet');renderFind();
+}
+function resetFilters(){Object.assign(findState,{subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''});saveFind();closeOv('filter-sheet');renderFind();}
+let _searchSeq=0;
+async function renderFind(){
+  const f=findState;
+  document.getElementById('who-me').classList.toggle('on',!f.forChild);
+  document.getElementById('who-child').classList.toggle('on',f.forChild);
+  document.getElementById('find-area').textContent=area?area.label:'Set your area';
+  const n=['subject','grade','mode','maxRate','day'].filter(k=>f[k]).length+(f.km!==15?1:0);
+  const fc=document.getElementById('filter-count');fc.textContent=n;fc.style.display=n?'inline-flex':'none';
+  const list=document.getElementById('find-list'),sub=document.getElementById('find-sub');
+  if(!area&&f.mode!=='online'){
+    sub.textContent='';
+    list.innerHTML=emptyState('📍','Where are you?','Set your area to see tutors near you, or pick Online in Filters.')+`<button class="btn-primary" onclick="openAreaSheet()">Set my area</button>`;
+    return;
+  }
+  list.innerHTML=spin();
+  const seq=++_searchSeq;
+  const{data,error}=await sb.rpc('tutor_search',{
+    p_lat:area?.lat??null,p_lng:area?.lng??null,p_subject:f.subject||null,p_grade:f.grade||null,
+    p_max_km:f.km,p_max_rate:f.maxRate?+f.maxRate:null,p_mode:f.mode||null,p_day:f.day||null,p_time:f.time||null,
+    p_for_child:f.forChild,p_limit:60});
+  if(seq!==_searchSeq)return;
+  if(error){list.innerHTML=emptyState('😕','Couldn\'t load tutors',esc(error.message));return;}
+  const rows=(data||[]).filter(t=>!blockedIds.has(t.profile_id));
+  const bits=[f.subject||'All subjects',f.grade,f.mode?modeLabel(f.mode):'',f.mode==='online'?'':`within ${f.km} km`].filter(Boolean);
+  sub.textContent=`${rows.length} ${rows.length===1?'tutor':'tutors'} · ${bits.join(' · ')} · best match first`;
+  if(f.forChild)sub.textContent+=' · background-checked only';
+  if(!rows.length){
+    list.innerHTML=emptyState('🔍','No tutors match yet',f.forChild?'Only tutors with a cleared background check appear for children. Try fewer filters or a wider distance.':'Try fewer filters or a wider distance.');
+    return;
+  }
+  list.innerHTML=rows.map(tutorCard).join('');
+}
+function tutorCard(t){
+  const subj=(t.subjects||[]).slice(0,4).map(s=>`<span class="tag">${subjEmoji(s)} ${esc(s)}</span>`).join(' ');
+  const dist=t.modes==='online'?'💻 Online only'
+    :t.distance_km!=null?`📍 ${t.distance_km<1?'< 1':t.distance_km} km · ${esc(t.service_area||'')}`
+    :t.service_area?`📍 ${esc(t.service_area)}`
+    :t.modes==='both'?'💻 Online · city not listed':'📍 City not listed';
+  const rating=t.review_count?`<span class="stars">★ ${(+t.rating).toFixed(1)}</span> (${t.review_count})`:'New tutor';
+  return`<div class="tcard" onclick="openTutor('${t.profile_id}')">
+    <div class="tc-top">${avatar(t.name,40,16)}
+      <div style="min-width:0;flex:1"><div class="tc-name">${esc(t.name||'Tutor')}<span class="idv-chip">✓ ID</span>${t.minors_cleared?'<span class="kid-chip">✓ Under-18s</span>':''}</div>
+      <div class="tc-head">${esc(t.headline||'')}</div></div>
+      <div class="tc-rate">${money(t.hourly_rate)}<span style="font-size:12px;color:var(--muted)">/hr</span></div></div>
+    ${subj?`<div style="display:flex;flex-wrap:wrap;gap:4px">${subj}</div>`:''}
+    <div class="tc-meta"><span>${rating}</span><span>${dist}</span><span>${modeLabel(t.modes)}</span>${t.repeat_learners?`<span>🔁 ${t.repeat_learners} repeat ${t.repeat_learners===1?'learner':'learners'}</span>`:''}</div>
+  </div>`;
+}
+
+/* ── TUTOR PUBLIC PROFILE ── */
+let viewTutor=null;
+async function openTutor(id){
+  const body=document.getElementById('tutor-body');body.innerHTML=spin();openOv('tutor-modal');
+  const{data,error}=await sb.rpc('tutor_public_profile',{p_tutor:id});
+  if(error||!data){body.innerHTML=emptyState('👤','Profile not available','This tutor isn\'t listed right now.');return;}
+  viewTutor=data;const t=data;
+  const grid=`<div class="avail"><div></div>${TIMES.map(([,l])=>`<div>${l.slice(0,3)}</div>`).join('')}${DAYS.map(([k,l])=>`<div style="text-align:left">${l}</div>${TIMES.map(([tk])=>`<div class="${(t.availability?.[k]||[]).includes(tk)?'on':'off'}">${(t.availability?.[k]||[]).includes(tk)?'✓':''}</div>`).join('')}`).join('')}</div>`;
+  const reviews=(t.reviews||[]).length?t.reviews.map(r=>`<div class="review"><div style="display:flex;justify-content:space-between;gap:8px"><span class="stars">${stars(r.rating)}</span><span style="font-size:12px;color:var(--muted);font-weight:700">${esc(r.reviewer)} · ${timeAgo(r.created_at)}</span></div>${r.body?`<div class="box-txt" style="margin-top:4px">${esc(r.body)}</div>`:''}</div>`).join(''):'<div class="box-txt" style="color:var(--muted)">No reviews yet.</div>';
+  const canBook=ROLE==='learner';
+  body.innerHTML=`
+    <div class="op-hero" style="margin-top:12px">${avatar(t.name,56,22)}
+      <div style="min-width:0"><div class="op-name">${esc(t.name||'Tutor')}</div>
+        <div style="font-size:14px;font-weight:800;color:${t.review_count?'var(--yellow)':'var(--muted)'};margin-top:2px">${t.review_count?`★ ${(+t.rating).toFixed(1)} · ${t.review_count} ${t.review_count===1?'review':'reviews'}`:'New tutor'}${t.repeat_learners?` <span style="color:var(--muted)">· 🔁 ${t.repeat_learners} repeat</span>`:''}</div>
+        <div class="op-mod-links"><button onclick="openReport('${t.profile_id}',viewTutor.name)">Report</button>·<button onclick="openBlock('${t.profile_id}',viewTutor.name)">Block</button></div>
+      </div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"><span class="idv-chip" style="margin:0">✓ ID verified</span>${t.minors_cleared?'<span class="kid-chip" style="margin:0">✓ Available for students under 18</span>':''}</div>
+    ${t.headline?`<div style="font-size:16px;font-weight:800;margin-bottom:10px">${esc(t.headline)}</div>`:''}
+    <div class="modal-grid" style="margin-top:0"><div class="modal-pill"><div class="modal-pill-l">Rate</div><div class="modal-pill-v" style="color:var(--lime)">${money(t.hourly_rate)}/hr</div></div>
+      <div class="modal-pill"><div class="modal-pill-l">Where</div><div class="modal-pill-v" style="font-size:14px">${modeLabel(t.modes)}</div></div></div>
+    <div class="box"><div class="box-lbl">About</div><div class="box-txt">${esc(t.bio||'')}</div></div>
+    <div class="box"><div class="box-lbl">Subjects</div><div style="display:flex;flex-wrap:wrap;gap:6px">${(t.subjects||[]).map(s=>`<span class="tag">${subjEmoji(s)} ${esc(s)}</span>`).join('')}</div>
+      <div class="box-lbl" style="margin-top:12px">Grade levels</div><div style="display:flex;flex-wrap:wrap;gap:6px">${(t.grade_levels||[]).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</div></div>
+    ${t.modes!=='online'&&t.service_area?`<div class="box"><div class="box-lbl">City</div><div class="box-txt">📍 ${esc(t.service_area||'')} · travels up to ${t.travel_km} km</div></div>`:''}
+    <div class="box"><div class="box-lbl">Usually available</div>${grid}</div>
+    <div class="box"><div class="box-lbl">Reviews</div>${reviews}</div>
+    ${canBook?`<div class="btn-row" style="position:sticky;bottom:0;background:var(--surface);padding-top:8px">
+      <button class="btn-ghost" onclick="messageTutor('${t.profile_id}')">Message</button>
+      <button class="btn-primary" onclick="openBooking()">Book</button></div>`:''}`;
+}
+async function messageTutor(id){
+  const cid=await rpc('tutor_start_conversation',{p_tutor:id});
+  if(!cid)return;
+  closeOv('tutor-modal');
+  openChat(cid,id,viewTutor?.name||'Tutor',false);
+}
+
+/* ── BOOKING ── */
+let bk={};
+function openBooking(){
+  const t=viewTutor;if(!t)return;
+  bk={tutor:t,forChild:findState.forChild&&t.minors_cleared,kind:'trial',mode:t.modes==='online'?'online':'in_person'};
+  document.getElementById('bk-name').textContent=(t.name||'tutor').split(' ')[0];
+  const opt=a=>a.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  document.getElementById('bk-subject').innerHTML=opt(t.subjects||[]);
+  if(findState.subject&&(t.subjects||[]).includes(findState.subject))document.getElementById('bk-subject').value=findState.subject;
+  document.getElementById('bk-grade').innerHTML=opt(t.grade_levels||[]);
+  if(findState.grade&&(t.grade_levels||[]).includes(findState.grade))document.getElementById('bk-grade').value=findState.grade;
+  ['bk-note','bk-label'].forEach(id=>document.getElementById(id).value='');
+  const s=new Date(Date.now()+2*864e5);s.setHours(16,0,0,0);
+  document.getElementById('bk-start').value=toLocalInput(s);
+  document.getElementById('bk-start').min=toLocalInput(new Date(Date.now()+2*36e5));
+  document.getElementById('bk-ack').checked=false;document.getElementById('bk-go').disabled=true;
+  document.getElementById('bk-mode-g').style.display=t.modes==='both'?'block':'none';
+  bkSetWho(bk.forChild);bkSetKind('trial');bkSetMode(bk.mode);
+  closeOv('tutor-modal');openOv('book-modal');
+}
+function bkSetWho(child){
+  if(child&&!bk.tutor.minors_cleared){toast('This tutor isn\'t cleared to teach under-18s. Find one with the ✓ Under-18s badge');child=false;}
+  bk.forChild=child;
+  document.getElementById('bk-me').classList.toggle('on',!child);document.getElementById('bk-child').classList.toggle('on',child);
+  document.getElementById('bk-label-g').style.display=child?'block':'none';
+  document.getElementById('bk-who-hint').textContent=child?'👪 You stay the contact: messages and bookings go through your account. We only ask for the subject and grade, not your child\'s name, photo or birthday.':'';
+  document.getElementById('bk-note-l').textContent=child?'Note from the parent (optional)':'Note for the tutor (optional)';
+  document.getElementById('bk-note').placeholder=child?'e.g. Struggling with fractions, has a unit test in 3 weeks':'What would you like help with?';
+  document.getElementById('bk-note-hint').textContent=child?'Please don\'t include your child\'s name, school or other personal details.':'';
+  bkSafety();
+}
+function bkSetKind(k){bk.kind=k;document.getElementById('bk-trial').classList.toggle('on',k==='trial');document.getElementById('bk-weekly').classList.toggle('on',k==='weekly');document.getElementById('bk-weeks-g').style.display=k==='weekly'?'block':'none';bkSummary();}
+function bkSetMode(m){bk.mode=m;document.getElementById('bk-inp').classList.toggle('on',m==='in_person');document.getElementById('bk-onl').classList.toggle('on',m==='online');bkSafety();bkSummary();}
+function bkSafety(){document.getElementById('bk-safety').innerHTML=safetyHtml(bk.forChild,bk.mode);}
+function bkSummary(){
+  const t=bk.tutor;if(!t)return;
+  const dur=+document.getElementById('bk-dur').value,weeks=bk.kind==='weekly'?+document.getElementById('bk-weeks').value:1;
+  const per=(+t.hourly_rate)*dur/60;
+  const v=document.getElementById('bk-start').value;
+  let hint='';
+  if(v){const d=new Date(v),day=DAYS[(d.getDay()+6)%7][0],h=d.getHours(),slot=h<12?'morning':h<17?'afternoon':'evening';
+    if(!(t.availability?.[day]||[]).includes(slot))hint=`⚠️ ${(t.name||'This tutor').split(' ')[0]} isn't usually available ${DAYS[(d.getDay()+6)%7][1]} ${slot}s. They may suggest another time.`;}
+  document.getElementById('bk-avail-hint').textContent=hint;
+  document.getElementById('bk-summary').innerHTML=`<div class="box-lbl">Agreed rate</div>
+    <div style="font-size:15px;font-weight:800">${money(t.hourly_rate)}/hr · ${money(per)} per ${dur}-min session${weeks>1?` · ${weeks} weeks ≈ ${money(per*weeks)}`:''}</div>
+    <div class="form-hint">💵 You pay your tutor directly after each session (cash or e-transfer). Each completed session is logged in Sessions → History.<br>🕑 Free to cancel or reschedule up to ${CANCEL_HOURS} hours before. Later cancellations are marked as late.</div>`;
+}
+async function submitBooking(){
+  const v=document.getElementById('bk-start').value;
+  if(!v)return toast('Pick a start time');
+  const btn=document.getElementById('bk-go');btn.disabled=true;btn.textContent='Sending…';
+  const res=await rpc('tutor_request_booking',{p_tutor:bk.tutor.profile_id,p_for_child:bk.forChild,
+    p_subject:document.getElementById('bk-subject').value,p_grade:document.getElementById('bk-grade').value,
+    p_note:document.getElementById('bk-note').value,p_kind:bk.kind,p_mode:bk.mode,
+    p_start:new Date(v).toISOString(),p_duration:+document.getElementById('bk-dur').value,
+    p_weeks:bk.kind==='weekly'?+document.getElementById('bk-weeks').value:1,p_safety_ack:document.getElementById('bk-ack').checked});
+  btn.disabled=false;btn.textContent='Send booking request';
+  if(!res)return;
+  const label=document.getElementById('bk-label').value.trim();
+  if(bk.forChild&&label)await sb.from('tutor_booking_labels').insert({booking_id:res.booking_id,label});
+  closeOv('book-modal');toast('📅 Request sent! You\'ll be notified when the tutor answers.');
+  sessTab='requests';nav('sessions');
+}
+
+/* ══ SESSIONS ══ */
+let sessTab='upcoming',SESS=[],BOOK={},LABELS={},calMonth=null,calSel=null;
+function setSessTab(t){sessTab=t;renderSessions();}
+async function loadSessions(){
+  document.getElementById('sess-body').innerHTML=spin();
+  const sel='*,tutor:profiles!tutor_bookings_tutor_id_fkey(name),learner:profiles!tutor_bookings_learner_id_fkey(name)';
+  const[bRes,sRes,lRes]=await Promise.all([
+    sb.from('tutor_bookings').select(sel).or(`tutor_id.eq.${me.id},learner_id.eq.${me.id}`).order('created_at',{ascending:false}).limit(300),
+    sb.from('tutor_sessions').select('*').or(`tutor_id.eq.${me.id},learner_id.eq.${me.id}`).order('start_at').limit(1000),
+    ROLE==='learner'?sb.from('tutor_booking_labels').select('booking_id,label'):Promise.resolve({data:[]})
+  ]);
+  if(bRes.error||sRes.error){document.getElementById('sess-body').innerHTML=emptyState('😕','Couldn\'t load sessions',esc((bRes.error||sRes.error).message));return;}
+  BOOK={};(bRes.data||[]).forEach(b=>BOOK[b.id]=b);
+  SESS=sRes.data||[];
+  LABELS={};(lRes.data||[]).forEach(l=>LABELS[l.booking_id]=l.label);
+  renderSessions();refreshBadges();
+}
+function otherOf(b){return b?(b.tutor_id===me.id?{id:b.learner_id,name:b.learner?.name||'Learner'}:{id:b.tutor_id,name:b.tutor?.name||'Tutor'}):{id:null,name:'Unknown'};}
+function whoLine(b){
+  if(!b)return'';
+  if(!b.for_child)return'';
+  if(b.learner_id===me.id)return LABELS[b.id]?`👪 ${esc(LABELS[b.id])}`:'👪 For your child';
+  return'👪 Child session: parent is your contact';
+}
+function renderSessions(){
+  ['upcoming','requests','history'].forEach(t=>document.getElementById('st-'+t).classList.toggle('on',t===sessTab));
+  const pending=Object.values(BOOK).filter(b=>b.status==='requested');
+  document.getElementById('req-count').textContent=pending.length?`(${pending.length})`:'';
+  const el=document.getElementById('sess-body');
+  if(sessTab==='requests'){
+    el.innerHTML=pending.length?pending.map(bookingCard).join(''):emptyState('📭','No pending requests',ROLE==='tutor'?'New booking requests from learners show up here.':'Requests you send show up here until the tutor answers.');
+    return;
+  }
+  if(sessTab==='history'){
+    const done=SESS.filter(s=>s.status!=='scheduled'||new Date(s.start_at)<Date.now()-36e5*3).reverse();
+    const completed=SESS.filter(s=>s.status==='completed');
+    const total=completed.reduce((a,s)=>a+(+s.amount||0),0),unpaid=completed.filter(s=>!s.paid_off_app_at).reduce((a,s)=>a+(+s.amount||0),0);
+    const ledger=completed.length?`<div class="card"><div class="box-lbl">Payment log</div>
+      <div style="display:flex;justify-content:space-between;font-weight:800;font-size:15px"><span>${completed.length} completed ${completed.length===1?'session':'sessions'}</span><span style="color:var(--lime)">${money(total)}</span></div>
+      ${ROLE==='tutor'?`<div style="font-size:13px;font-weight:700;color:var(--muted);margin-top:4px">Not yet marked paid: ${money(unpaid)}</div>`:''}
+      <div class="form-hint">Payments are settled directly between you, off the app. In-app payment is coming later.</div></div>`:'';
+    const declined=Object.values(BOOK).filter(b=>b.status==='declined'||(b.status==='cancelled'&&!SESS.some(s=>s.booking_id===b.id)));
+    el.innerHTML=ledger+(done.length?done.map(sessionCard).join(''):'')+(declined.length?`<div class="act-h">Requests not booked</div>`+declined.map(bookingCard).join(''):'')
+      ||emptyState('🗂️','No history yet','Completed and cancelled sessions show up here.');
+    return;
+  }
+  // Upcoming: calendar + agenda
+  const up=SESS.filter(s=>s.status==='scheduled'&&new Date(s.start_at)>Date.now()-36e5*3);
+  if(!calMonth){const d=new Date();calMonth=new Date(d.getFullYear(),d.getMonth(),1);}
+  const byDay={};up.forEach(s=>{const k=new Date(s.start_at).toDateString();(byDay[k]=byDay[k]||[]).push(s);});
+  const first=new Date(calMonth),startDow=(first.getDay()+6)%7,days=new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
+  let cells='';for(let i=0;i<startDow;i++)cells+='<div></div>';
+  for(let d=1;d<=days;d++){const dt=new Date(first.getFullYear(),first.getMonth(),d),k=dt.toDateString();
+    const cls=['cal-day',k===new Date().toDateString()?'today':'',calSel===k?'sel':'',dt<new Date(new Date().toDateString())?'dim':''].join(' ');
+    cells+=`<div class="${cls}" onclick="calPick('${k}')">${d}${byDay[k]?'<i></i>':''}</div>`;}
+  const list=calSel?(byDay[calSel]||[]):up;
+  el.innerHTML=`<div class="cal"><div class="cal-head"><button onclick="calShift(-1)">‹</button><span>${first.toLocaleDateString('en-CA',{month:'long',year:'numeric'})}</span><button onclick="calShift(1)">›</button></div>
+    <div class="cal-grid">${['M','T','W','T','F','S','S'].map(x=>`<div class="cal-dow">${x}</div>`).join('')}${cells}</div></div>
+    <div class="act-h">${calSel?new Date(calSel).toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'})+` · <a onclick="calPick(null)" style="color:var(--purple);cursor:pointer;text-transform:none">show all</a>`:'Upcoming sessions'}</div>
+    ${list.length?list.map(sessionCard).join(''):emptyState('📅',calSel?'Nothing this day':'No upcoming sessions',ROLE==='learner'&&!calSel?'Find a tutor and book a trial session.':'')}`;
+}
+function calShift(n){calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+n,1);calSel=null;renderSessions();}
+function calPick(k){calSel=k;renderSessions();}
+function sessionCard(s){
+  const b=BOOK[s.booking_id],o=otherOf(b);
+  const st=s.status==='completed'?'<span class="status-pill ok">Completed</span>':s.status==='cancelled'?`<span class="status-pill bad">Cancelled${s.late_cancel?' · late':''}</span>`:new Date(s.start_at)<Date.now()?'<span class="status-pill warn">Needs completing</span>':'<span class="status-pill">Scheduled</span>';
+  return`<div class="tcard" style="--jc:${s.status==='cancelled'?'var(--danger)':s.status==='completed'?'var(--lime)':'var(--orange)'}" onclick="openSession('${s.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div class="tc-name">${subjEmoji(b?.subject)} ${esc(b?.subject||'Session')} <span style="color:var(--muted);font-weight:700;font-size:13px">· ${esc(b?.grade_level||'')}</span></div>${st}</div>
+    <div style="font-size:14px;font-weight:800">${fmtWhen(s.start_at)} · ${s.duration_min} min</div>
+    <div class="tc-meta"><span>${ROLE==='tutor'?'👤':'🎓'} ${esc(o.name)}</span><span>${b?.mode==='online'?'💻 Online':'📍 In person'}</span>${whoLine(b)?`<span>${whoLine(b)}</span>`:''}${s.status==='completed'?`<span style="color:var(--lime)">${money(s.amount)}${ROLE==='tutor'?(s.paid_off_app_at?' · paid':' · unpaid'):''}</span>`:''}</div>
+  </div>`;
+}
+function bookingCard(b){
+  const o=otherOf(b);
+  const st={requested:'<span class="status-pill warn">Waiting for tutor</span>',declined:'<span class="status-pill bad">Declined</span>',cancelled:'<span class="status-pill bad">Withdrawn</span>'}[b.status]||'';
+  return`<div class="tcard" style="--jc:var(--orange)" onclick="openBooking2('${b.id}')">
+    <div style="display:flex;justify-content:space-between;gap:8px"><div class="tc-name">${subjEmoji(b.subject)} ${esc(b.subject)} · ${esc(b.grade_level)}</div>${ROLE==='tutor'&&b.status==='requested'?'<span class="status-pill warn">New request</span>':st}</div>
+    <div style="font-size:14px;font-weight:800">${b.kind==='trial'?'Trial session':`Weekly × ${b.weeks}`} · from ${fmtWhen(b.first_start_at)}</div>
+    <div class="tc-meta"><span>${ROLE==='tutor'?'👤':'🎓'} ${esc(o.name)}</span><span>${b.mode==='online'?'💻 Online':'📍 In person'}</span>${whoLine(b)?`<span>${whoLine(b)}</span>`:''}<span>${money(b.rate)}/hr</span></div>
+  </div>`;
+}
+function openBooking2(id){
+  const b=BOOK[id];if(!b)return;const o=otherOf(b);
+  const isTutor=b.tutor_id===me.id;
+  let actions='';
+  if(b.status==='requested'&&isTutor){
+    actions=`${b.for_child?safetyHtml(true,b.mode).replace(/^<div class="safety-tip">[\s\S]*?<\/div>/,''):''}
+      <button class="btn-primary" onclick="respondBooking('${b.id}',true,this)">Accept${b.kind==='weekly'?` · ${b.weeks} sessions`:''}</button>
+      <div class="form-g" style="margin-top:14px"><label class="form-lbl">Or decline (reason optional)</label><input class="form-inp" id="decline-reason" maxlength="300" placeholder="e.g. That time doesn't work. Could you do Thursday?"></div>
+      <button class="btn-danger" onclick="tapConfirm(this,'Tap again to decline',()=>respondBooking('${b.id}',false,this))">Decline</button>`;
+  }else if(b.status==='requested'){
+    actions=`<button class="btn-danger" onclick="tapConfirm(this,'Tap again to withdraw',()=>cancelBooking('${b.id}'))">Withdraw request</button>`;
+  }
+  document.getElementById('booking-body').innerHTML=`
+    <div class="modal-head"><div class="modal-title">${subjEmoji(b.subject)} ${esc(b.subject)}</div><button class="x-btn" onclick="closeOv('booking-modal')">✕</button></div>
+    <div class="section-sub">${esc(b.grade_level)} · ${b.kind==='trial'?'Trial session':`Weekly × ${b.weeks}`} · ${b.mode==='online'?'Online':'In person'}</div>
+    ${b.for_child?`<div class="box" style="border-color:var(--kid-line);background:var(--kid-soft)"><div class="box-txt" style="color:var(--text)">${isTutor?'👪 This session is for the learner\'s child. You talk with the parent. The child doesn\'t have an account. Follow the under-18 session rules below.':'👪 For your child'+(LABELS[b.id]?` (${esc(LABELS[b.id])})`:'')}</div></div>`:''}
+    <div class="modal-grid"><div class="modal-pill"><div class="modal-pill-l">${isTutor?'Learner':'Tutor'}</div><div class="modal-pill-v" style="font-size:15px">${esc(o.name)}</div></div>
+      <div class="modal-pill"><div class="modal-pill-l">Rate</div><div class="modal-pill-v" style="color:var(--lime)">${money(b.rate)}/hr</div></div></div>
+    <div class="box"><div class="box-lbl">First session</div><div class="box-txt">${fmtWhen(b.first_start_at)} · ${b.duration_min} min</div>
+      ${b.note?`<div class="box-lbl" style="margin-top:10px">${b.for_child?'Note from the parent':'Note'}</div><div class="box-txt">${esc(b.note)}</div>`:''}
+      ${b.decline_reason?`<div class="box-lbl" style="margin-top:10px">Tutor's reply</div><div class="box-txt">${esc(b.decline_reason)}</div>`:''}</div>
+    <button class="btn-ghost" style="margin-bottom:8px" onclick="chatWith('${o.id}','${jsq(o.name)}',${isTutor})">💬 Message ${esc(o.name.split(' ')[0])}</button>
+    ${actions}`;
+  openOv('booking-modal');
+}
+async function respondBooking(id,accept,btn){
+  btn.disabled=true;
+  const res=await rpc('tutor_respond_booking',{p_booking:id,p_accept:accept,p_reason:accept?null:(document.getElementById('decline-reason')?.value||null)});
+  btn.disabled=false;
+  if(!res)return;
+  closeOv('booking-modal');toast(accept?'✅ Booking confirmed. Sessions added to your calendar':'Request declined');
+  sessTab=accept?'upcoming':'requests';loadSessions();
+}
+async function cancelBooking(id){
+  const res=await rpc('tutor_cancel_booking',{p_booking:id,p_reason:null});
+  if(!res)return;closeOv('booking-modal');toast('Request withdrawn');loadSessions();
+}
+let curSess=null;
+function openSession(id){
+  const s=SESS.find(x=>x.id===id);if(!s)return;curSess=s;
+  const b=BOOK[s.booking_id],o=otherOf(b),isTutor=s.tutor_id===me.id;
+  const start=new Date(s.start_at),hoursTo=(start-Date.now())/36e5;
+  let actions='';
+  if(s.status==='scheduled'){
+    if(isTutor&&hoursTo<0.25)actions+=`<button class="btn-primary" onclick="openComplete()">✅ Mark complete</button>`;
+    if(hoursTo>0){
+      actions+=`<div class="btn-row" style="margin-top:8px">${hoursTo>CANCEL_HOURS?`<button class="btn-ghost" onclick="openReschedule()">Reschedule</button>`:''}<button class="btn-danger" onclick="openCancel('session')">Cancel session</button></div>`;
+      if(b?.kind==='weekly'&&SESS.filter(x=>x.booking_id===b.id&&x.status==='scheduled').length>1)actions+=`<button class="btn-text" onclick="openCancel('booking')">Cancel all remaining sessions</button>`;
+      actions+=`<div class="form-hint" style="text-align:center">${hoursTo>CANCEL_HOURS?`Free to reschedule or cancel until ${fmtWhen(start-CANCEL_HOURS*36e5)}.`:`Less than ${CANCEL_HOURS} hours to go. Cancelling now counts as a late cancellation.`}</div>`;
+    }
+  }
+  if(s.status==='completed'&&isTutor)actions+=`<label class="check-row" style="justify-content:space-between;align-items:center"><span>💵 Paid (off the app)</span><span class="sw"><input type="checkbox" ${s.paid_off_app_at?'checked':''} onchange="markPaid('${s.id}',this.checked)"><span></span></span></label>`;
+  if(s.status==='completed'&&!isTutor)actions+=`<button class="btn-primary" onclick="openReview('${b.id}')">⭐ ${b._reviewed?'Edit review':'Review your tutor'}</button>`;
+  document.getElementById('session-body').innerHTML=`
+    <div class="modal-head"><div class="modal-title">${subjEmoji(b?.subject)} ${esc(b?.subject||'Session')}</div><button class="x-btn" onclick="closeOv('session-modal')">✕</button></div>
+    <div class="section-sub">${esc(b?.grade_level||'')} · ${b?.mode==='online'?'Online':'In person'}${s.rescheduled_from?` · moved from ${fmtWhen(s.rescheduled_from)}`:''}</div>
+    ${b?.for_child?`<div class="box" style="border-color:var(--kid-line);background:var(--kid-soft)"><div class="box-txt" style="color:var(--text)">${isTutor?'👪 Child session: the parent is your contact.':'👪 For your child'+(LABELS[b.id]?` (${esc(LABELS[b.id])})`:'')}</div></div>`:''}
+    <div class="modal-grid"><div class="modal-pill"><div class="modal-pill-l">When</div><div class="modal-pill-v" style="font-size:14px">${fmtWhen(s.start_at)}</div></div>
+      <div class="modal-pill"><div class="modal-pill-l">${isTutor?'Learner':'Tutor'}</div><div class="modal-pill-v" style="font-size:14px">${esc(o.name)}</div></div>
+      <div class="modal-pill"><div class="modal-pill-l">Length</div><div class="modal-pill-v" style="font-size:14px">${s.duration_min} min</div></div>
+      <div class="modal-pill"><div class="modal-pill-l">${s.status==='completed'?'Logged':'Agreed rate'}</div><div class="modal-pill-v" style="font-size:14px;color:var(--lime)">${s.status==='completed'?money(s.amount):money(b?.rate)+'/hr'}</div></div></div>
+    ${s.status==='cancelled'?`<div class="box"><div class="box-lbl">Cancelled ${s.cancelled_by===me.id?'by you':'by '+esc(o.name.split(' ')[0])}${s.late_cancel?' · late (under 24 h)':''}</div><div class="box-txt">${esc(s.cancel_reason||'No reason given')}</div></div>`:''}
+    ${s.status==='completed'?`<div class="box"><div class="box-lbl">What we covered</div><div class="box-txt">${esc(s.covered||'Not noted')}</div><div class="box-lbl" style="margin-top:10px">Work on next</div><div class="box-txt">${esc(s.next_steps||'Not noted')}</div></div>`:''}
+    ${s.status==='scheduled'&&b?.for_child?safetyHtml(true,b.mode).replace(/^<div class="safety-tip">[\s\S]*?<\/div>/,''):''}
+    <button class="btn-ghost" style="margin-bottom:8px" onclick="chatWith('${o.id}','${jsq(o.name)}',${isTutor})">💬 Message ${esc(o.name.split(' ')[0])}</button>
+    ${actions}`;
+  openOv('session-modal');
+  if(s.status==='completed'&&!isTutor&&b&&b._reviewed===undefined){
+    sb.from('tutor_reviews').select('id').eq('booking_id',b.id).maybeSingle().then(({data})=>{b._reviewed=!!data;});
+  }
+}
+function openComplete(){document.getElementById('cm-covered').value='';document.getElementById('cm-next').value='';openOv('complete-modal');}
+async function submitComplete(){
+  const btn=document.getElementById('cm-go');btn.disabled=true;
+  const res=await rpc('tutor_complete_session',{p_session:curSess.id,p_covered:document.getElementById('cm-covered').value,p_next:document.getElementById('cm-next').value});
+  btn.disabled=false;if(!res)return;
+  closeOv('complete-modal');closeOv('session-modal');toast('✅ Session logged');loadSessions();
+}
+async function markPaid(id,paid){const r=await rpc('tutor_mark_paid',{p_session:id,p_paid:paid});if(r){const s=SESS.find(x=>x.id===id);if(s)s.paid_off_app_at=paid?new Date().toISOString():null;toast(paid?'💵 Marked as paid':'Marked as unpaid');}}
+function openReschedule(){
+  const i=document.getElementById('rs-start');i.value=toLocalInput(curSess.start_at);i.min=toLocalInput(new Date(Date.now()+2*36e5));openOv('resched-modal');
+}
+async function submitReschedule(){
+  const v=document.getElementById('rs-start').value;if(!v)return toast('Pick a new time');
+  const res=await rpc('tutor_reschedule_session',{p_session:curSess.id,p_new_start:new Date(v).toISOString()});
+  if(!res)return;closeOv('resched-modal');closeOv('session-modal');toast('🔁 Session moved');loadSessions();
+}
+let cxMode='session';
+function openCancel(mode){
+  cxMode=mode;
+  const late=(new Date(curSess.start_at)-Date.now())/36e5<CANCEL_HOURS;
+  document.getElementById('cx-title').textContent=mode==='booking'?'Cancel all remaining sessions?':'Cancel this session?';
+  document.getElementById('cx-desc').innerHTML=(mode==='booking'?'Every upcoming session in this booking will be cancelled. Completed sessions stay in your history.':`${fmtWhen(curSess.start_at)}.`)
+    +(late?` <b style="color:var(--danger)">This is less than ${CANCEL_HOURS} hours away, so it will be recorded as a late cancellation.</b>`:` You're cancelling more than ${CANCEL_HOURS} hours ahead, so there's no penalty.`);
+  document.getElementById('cx-reason').value='';openOv('cancel-modal');
+}
+async function submitCancel(){
+  const reason=document.getElementById('cx-reason').value;
+  const res=cxMode==='booking'?await rpc('tutor_cancel_booking',{p_booking:curSess.booking_id,p_reason:reason}):await rpc('tutor_cancel_session',{p_session:curSess.id,p_reason:reason});
+  if(!res)return;closeOv('cancel-modal');closeOv('session-modal');toast(res.late?'Cancelled (late cancellation)':'Cancelled');loadSessions();
+}
+
+/* ── REVIEWS ── */
+let rvBooking=null,rvScore=0;
+async function openReview(bookingId){
+  rvBooking=bookingId;rvScore=0;const b=BOOK[bookingId];
+  document.getElementById('rv-name').textContent=otherOf(b).name.split(' ')[0];
+  document.getElementById('rv-body').value='';
+  const{data}=await sb.from('tutor_reviews').select('rating,body').eq('booking_id',bookingId).maybeSingle();
+  if(data){rvScore=data.rating;document.getElementById('rv-body').value=data.body||'';}
+  rvStars();closeOv('session-modal');openOv('review-modal');
+}
+function rvStars(){
+  document.getElementById('rv-stars').innerHTML=[1,2,3,4,5].map(n=>`<button class="star-btn ${n<=rvScore?'on':''}" onclick="rvScore=${n};rvStars()" aria-label="${n} stars">★</button>`).join('');
+  document.getElementById('rv-go').disabled=!rvScore;
+}
+async function submitReview(){
+  const res=await rpc('tutor_submit_review',{p_booking:rvBooking,p_rating:rvScore,p_body:document.getElementById('rv-body').value});
+  if(!res)return;if(BOOK[rvBooking])BOOK[rvBooking]._reviewed=true;closeOv('review-modal');toast('⭐ Thanks for your review!');
+}
+
+/* ══ MESSAGES ══ */
+async function loadConversations(){
+  const el=document.getElementById('conv-list');el.innerHTML=spin();
+  const{data,error}=await sb.rpc('tutor_my_conversations');
+  if(error){el.innerHTML=emptyState('😕','Couldn\'t load messages',esc(error.message));return;}
+  const rows=(data||[]).filter(c=>!blockedIds.has(c.other_id));
+  document.getElementById('msg-dot').style.display=rows.some(c=>c.unread)?'block':'none';
+  if(!rows.length){el.innerHTML=emptyState('💬','No messages yet',ROLE==='learner'?'Message a tutor from their profile to ask a question before booking.':'Learners can message you from your profile.');return;}
+  el.innerHTML=rows.map(c=>`<div class="conv-row ${c.unread?'unread':''}" onclick="openChat('${c.conversation_id}','${c.other_id}','${jsq(c.other_name)}',${c.i_am_tutor})">
+    ${avatar(c.other_name,36,14)}
+    <div class="conv-body"><div class="conv-top"><span class="conv-name">${esc(c.other_name)} <span style="font-size:11.5px;color:var(--muted);font-weight:700">${c.i_am_tutor?'Learner':'Tutor'}</span></span><span class="conv-time">${c.last_at?timeAgo(c.last_at):''}</span></div>
+    <div class="conv-preview">${c.last_kind==='system'?'📌 ':''}${esc((c.last_body||'').slice(0,80))}</div></div></div>`).join('');
+}
+async function chatWith(otherId,name,iAmTutor){
+  let q=sb.from('tutor_conversations').select('id');
+  q=iAmTutor?q.eq('tutor_id',me.id).eq('learner_id',otherId):q.eq('learner_id',me.id).eq('tutor_id',otherId);
+  const{data}=await q.maybeSingle();
+  if(data)return openChat(data.id,otherId,name,iAmTutor);
+  if(!iAmTutor){const cid=await rpc('tutor_start_conversation',{p_tutor:otherId});if(cid)openChat(cid,otherId,name,false);}
+  else toast('No conversation yet');
+}
+let chat={};
+// Same patterns the database flags (tutor_moderate) — checked here first so the sender gets a heads-up.
+const MOD_PATTERNS=[
+  [/(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/,'off_app'],[/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i,'off_app'],
+  [/(whats ?app|telegram|signal app|snapchat|snap me|wechat|\bkik\b|instagram|\binsta\b|\bdm me\b|text me|call me|my number|my cell|off (the )?app|outside (of )?(the )?app)/i,'off_app'],
+  [/(gift ?cards?|western union|moneygram|bitcoin|crypto|wire transfer|cashier.?s cheque|overpa(y|id)|pay (me )?(in advance|up ?front)|deposit (first|up ?front)|send (me )?(the|your) code|verification code|bank (login|password))/i,'scam']];
+function modCheck(t){const r=new Set();MOD_PATTERNS.forEach(([re,k])=>{if(re.test(t))r.add(k);});return[...r];}
+const FLAG_TXT={phone_number:'shares a phone number',email_address:'shares an email address',off_app:'asks to move off Yoodle',scam:'mentions a common scam payment'};
+async function openChat(convId,otherId,name,iAmTutor){
+  chat={convId,otherId,otherName:name,iAmTutor};
+  document.getElementById('chat-av').textContent=(name||'?')[0].toUpperCase();
+  document.getElementById('chat-name').textContent=name;
+  document.getElementById('chat-sub').textContent=iAmTutor?'Learner':'Tutor';
+  document.getElementById('chat-bar').style.display=blockedIds.has(otherId)?'none':'flex';
+  closeOv('tutor-modal');closeOv('session-modal');closeOv('booking-modal');
+  openOv('chat-modal');
+  await loadChatMessages();
+  sb.rpc('tutor_mark_read',{p_conversation:convId}).then(()=>refreshBadges(),()=>{});
+}
+function closeChat(){closeOv('chat-modal');chat={};if(document.getElementById('app-messages').classList.contains('active'))loadConversations();}
+async function loadChatMessages(){
+  const el=document.getElementById('chat-msgs');
+  if(!el.innerHTML)el.innerHTML=spin();
+  const{data,error}=await sb.from('tutor_messages').select('id,body,kind,sender_id,flagged,flag_reasons,created_at').eq('conversation_id',chat.convId).order('created_at').limit(500);
+  if(error){el.innerHTML=emptyState('😕','Couldn\'t load chat',esc(error.message));return;}
+  const tip=`<div class="safety-tip"><b>🛡️ Stay safe</b>Keep chatting here until you've met. Never pay in advance with gift cards, crypto or wire transfers.${chat.iAmTutor?'':' Ask about experience and how they\'d help before you book.'}</div>`;
+  el.innerHTML=tip+((data||[]).map(m=>{
+    if(m.kind==='system')return`<div class="sys"><span>${linkify(esc(m.body))}</span></div>`;
+    const mine=m.sender_id===me.id;
+    const flag=m.flagged?`<div class="msg-flag">⚠️ ${mine?'Heads up: this message ':'Careful: this message '}${(m.flag_reasons||[]).map(r=>FLAG_TXT[r]||r).join(', ')}. ${mine?'Yoodle reviews flagged messages.':'Don\'t pay in advance or move off Yoodle with someone you haven\'t met.'}</div>`:'';
+    return`<div class="msg ${mine?'me':''}"><div class="bub">${linkify(esc(m.body))}${flag}<div class="t">${fmtTime(m.created_at)}</div></div></div>`;
+  }).join('')||emptyState('💬','Say hello','Ask about experience, availability or how they\'d help.'));
+  el.scrollTop=el.scrollHeight;
+}
+async function sendMessage(){
+  const inp=document.getElementById('chat-input'),body=inp.value.trim();
+  if(!body||!chat.convId)return;
+  const flags=modCheck(body);
+  if(flags.length&&!confirm(`This message ${flags.map(f=>FLAG_TXT[f]).join(' and ')}. For everyone's safety we ask you to keep contact and payment on Yoodle until you've met. Messages like this are flagged for review.\n\nSend anyway?`))return;
+  inp.value='';
+  const{error}=await sb.from('tutor_messages').insert({conversation_id:chat.convId,sender_id:me.id,body});
+  if(error){inp.value=body;return toast('❌ '+error.message);}
+  loadChatMessages();
+}
+
+/* ── REALTIME: chat + notification bell ── */
+function subscribeRealtime(){
+  sb.channel('tutor-live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'tutor_messages'},p=>{
+      const m=p.new;
+      if(chat.convId&&m.conversation_id===chat.convId){loadChatMessages();if(m.sender_id!==me.id)sb.rpc('tutor_mark_read',{p_conversation:chat.convId});}
+      else if(document.getElementById('app-messages').classList.contains('active'))loadConversations();
+    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'tutor_notifications',filter:`profile_id=eq.${me.id}`},p=>{
+      const n=p.new;refreshBadges();
+      if(n.kind!=='message'||!chat.convId)toast((NOTIF_EMOJI[n.kind]||'🔔')+' '+n.title);
+      if(['booking_request','booking_confirmed','booking_declined','cancelled','rescheduled','completed'].includes(n.kind)&&document.getElementById('app-sessions').classList.contains('active'))loadSessions();
+    })
+    .subscribe();
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshBadges();if(chat.convId)loadChatMessages();}});
+}
+
+/* ── NOTIFICATIONS ── */
+const NOTIF_EMOJI={booking_request:'📅',booking_confirmed:'✅',booking_declined:'↩️',cancelled:'❌',rescheduled:'🔁',message:'💬',review:'⭐',reminder:'⏰',completed:'📝',verification:'🛡️'};
+async function refreshBadges(){
+  if(!me)return;
+  const[{count},conv]=await Promise.all([
+    sb.from('tutor_notifications').select('id',{count:'exact',head:true}).eq('profile_id',me.id).is('read_at',null),
+    sb.rpc('tutor_my_conversations')
+  ]);
+  const b=document.getElementById('notif-badge');b.textContent=count>9?'9+':count;b.style.display=count?'block':'none';
+  document.getElementById('msg-dot').style.display=(conv.data||[]).some(c=>c.unread&&!blockedIds.has(c.other_id))?'block':'none';
+  if(ROLE==='tutor'){const{count:rq}=await sb.from('tutor_bookings').select('id',{count:'exact',head:true}).eq('tutor_id',me.id).eq('status','requested');document.getElementById('sess-dot').style.display=rq?'block':'none';}
+}
+async function openNotifications(){
+  const el=document.getElementById('notif-list');el.innerHTML=spin();openOv('notif-sheet');
+  const{data}=await sb.from('tutor_notifications').select('*').eq('profile_id',me.id).order('created_at',{ascending:false}).limit(60);
+  el.innerHTML=(data||[]).length?data.map(n=>`<div class="notif ${n.read_at?'':'unread'}" onclick="openNotif('${n.id}','${jsq(n.link||'')}')">
+    <div class="e">${NOTIF_EMOJI[n.kind]||'🔔'}</div><div style="min-width:0;flex:1"><b>${esc(n.title)}</b>${n.body?`<span>${esc(n.body)}</span>`:''}<small>${timeAgo(n.created_at)}</small></div></div>`).join('')
+    :emptyState('🔔','You\'re all caught up','Booking requests, messages, cancellations, reminders and reviews show up here.');
+}
+async function openNotif(id,link){
+  await sb.from('tutor_notifications').update({read_at:new Date().toISOString()}).eq('id',id).is('read_at',null);
+  closeOv('notif-sheet');refreshBadges();
+  const[kind,ref]=link.split(':');
+  if(kind==='chat'){const{data:c}=await sb.from('tutor_conversations').select('id,tutor_id,learner_id,tutor:profiles!tutor_conversations_tutor_id_fkey(name),learner:profiles!tutor_conversations_learner_id_fkey(name)').eq('id',ref).maybeSingle();
+    if(c){const iT=c.tutor_id===me.id;openChat(c.id,iT?c.learner_id:c.tutor_id,(iT?c.learner?.name:c.tutor?.name)||'Yoodler',iT);}}
+  else if(kind==='session'){nav('sessions');await loadSessions();openSession(ref);}
+  else if(kind==='booking'){nav('sessions');await loadSessions();const b=BOOK[ref];if(b&&b.status==='requested')openBooking2(ref);else{sessTab='upcoming';renderSessions();}}
+  else if(kind==='profile'||kind==='reviews')nav('profile');
+}
+async function markAllRead(){await sb.from('tutor_notifications').update({read_at:new Date().toISOString()}).eq('profile_id',me.id).is('read_at',null);openNotifications();refreshBadges();}
+
+/* ── REPORT / BLOCK (block list is shared with yoodle.ca) ── */
+let _report=null,_blockTarget=null;
+function openReport(userId,name,convId){
+  if(userId===me.id)return toast("That's you!");
+  _report={userId,convId:convId||null};
+  document.getElementById('report-sub').textContent='Report '+(name||'this person');
+  document.getElementById('report-reasons').innerHTML=REPORT_REASONS.map(r=>`<label class="check-row" style="margin:0;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2)"><input type="radio" name="report-reason" value="${esc(r)}">${esc(r)}</label>`).join('');
+  document.getElementById('report-details').value='';document.getElementById('report-block').checked=false;
+  openOv('report-modal');
+}
+async function submitReport(){
+  const reason=document.querySelector('input[name="report-reason"]:checked')?.value;
+  if(!reason)return toast('Choose a reason');
+  const btn=document.getElementById('report-go');btn.disabled=true;
+  const{error}=await sb.from('tutor_reports').insert({reporter_id:me.id,reported_id:_report.userId,reason,details:document.getElementById('report-details').value.trim()||null,conversation_id:_report.convId});
+  btn.disabled=false;
+  if(error)return toast('❌ '+error.message);
+  closeOv('report-modal');
+  if(document.getElementById('report-block').checked)await doBlock(_report.userId);
+  toast('✅ Thanks! We\'ll review this within 24 hours');
+}
+function openBlock(userId,name){if(userId===me.id)return toast("That's you!");_blockTarget=userId;document.getElementById('block-title').textContent=`Block ${name||'this person'}?`;openOv('block-modal');}
+async function confirmBlock(){if(await doBlock(_blockTarget)){closeOv('block-modal');toast('🚫 Blocked');}}
+async function doBlock(id){
+  const{error}=await sb.from('blocks').insert({blocker_id:me.id,blocked_id:id});
+  if(error&&error.code!=='23505'){toast('❌ '+error.message);return false;}
+  blockedIds.add(id);
+  ['tutor-modal','chat-modal','session-modal','booking-modal'].forEach(closeOv);chat={};
+  if(document.getElementById('app-find').classList.contains('active'))renderFind();
+  if(document.getElementById('app-messages').classList.contains('active'))loadConversations();
+  return true;
+}
+async function unblock(id){
+  const{error}=await sb.from('blocks').delete().eq('blocker_id',me.id).eq('blocked_id',id);
+  if(error)return toast('❌ '+error.message);
+  await loadBlocked();toast('Unblocked');renderProfile();
+}
+
+/* ══ PROFILE ══ */
+async function renderProfile(){
+  const el=document.getElementById('profile-body');el.innerHTML=spin();
+  await loadMe();
+  const[{data:prof},{data:blk}]=await Promise.all([
+    sb.from('profiles').select('name,bio').eq('id',me.id).maybeSingle(),
+    sb.from('blocks').select('blocked_id,profiles!blocks_blocked_id_fkey(name)').eq('blocker_id',me.id)
+  ]);
+  const name=prof?.name||me.user_metadata?.full_name||me.email?.split('@')[0]||'Yoodler';
+  let tutorHtml='';
+  if(ROLE==='tutor'){
+    const t=ME.tutor||{},live=t.listed&&t.review_status==='approved'&&ME.id_verified&&!t.admin_hidden;
+    const step=(ok,title,sub,btn)=>`<div class="card" style="display:flex;gap:12px;align-items:flex-start"><div style="font-size:20px">${ok===true?'✅':ok==='wait'?'⏳':ok==='bad'?'⚠️':'⬜'}</div><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">${title}</div><div style="font-size:13px;font-weight:700;color:var(--muted);line-height:1.5;margin-top:2px">${sub}</div>${btn||''}</div></div>`;
+    const smallBtn=(l,fn,primary)=>`<button onclick="${fn}" style="margin-top:10px;padding:9px 16px;border-radius:100px;border:${primary?'none':'1.5px solid var(--border)'};background:${primary?'var(--btn-a)':'var(--surface)'};color:${primary?'#fff':'var(--text)'};font:800 13.5px 'Nunito',sans-serif;cursor:pointer">${l}</button>`;
+    const profileDone=(t.subjects||[]).length&&(t.grade_levels||[]).length&&t.hourly_rate!=null&&t.bio;
+    const rs=t.review_status;
+    tutorHtml=`<div class="act-h">Your tutor listing</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;border-color:${live?'rgba(46,125,82,.35)':'var(--border)'}">
+        <div><div style="font-size:15px;font-weight:800">${live?'🟢 Live in search':'⚪ Not in search yet'}</div><div style="font-size:13px;font-weight:700;color:var(--muted)">${live?'Learners near you can find and book you.':t.admin_hidden?'Hidden by Yoodle. Contact support.':'Finish the steps below.'}</div></div>
+        <label class="sw" title="Show my listing"><input type="checkbox" ${t.listed?'checked':''} onchange="setListed(this.checked)"><span></span></label></div>
+      ${step(profileDone?true:false,'Tutor profile',profileDone?`${(t.subjects||[]).length} subjects · ${money(t.hourly_rate)}/hr · ${modeLabel(t.modes)}`:'Add subjects, grades, rate, area and a bio.',smallBtn(profileDone?'Edit profile':'Set up profile',"nav('tutoredit')",!profileDone))}
+      ${step(ME.id_verified?true:false,'ID verification (required)',ME.id_verified?'Verified by Stripe. You have the ✓ ID badge.':'Every tutor verifies their ID with Stripe ($2.99 + tax, one time). It\'s done on yoodle.ca with the same account, then shows here.',ME.id_verified?'':smallBtn('Verify on yoodle.ca ↗',"window.open('https://yoodle.ca/','_blank','noopener')",true)+smallBtn('I\'ve finished, refresh','renderProfile()'))}
+      ${step(rs==='approved'?true:rs==='pending'?'wait':rs==='rejected'?'bad':false,'Profile review',rs==='approved'?'Approved by the Yoodle team.':rs==='pending'?'We\'re reviewing your profile, usually within 1–2 days.':rs==='rejected'?'Changes needed: '+esc(t.review_note||'see email'):'Submit your profile so our team can check it.',(rs==='draft'||rs==='rejected')?smallBtn('Submit for review','submitForReview()',true):'')}
+      ${step(t.minors_status==='cleared'?true:t.minors_status==='submitted'?'wait':t.minors_status==='rejected'?'bad':false,'Teach students under 18 (optional)',
+        t.minors_status==='cleared'?`Cleared${t.minors_expires_at?' until '+new Date(t.minors_expires_at+'T12:00').toLocaleDateString('en-CA',{month:'short',year:'numeric'}):''}. You show "Available for students under 18".`
+        :t.minors_status==='submitted'?'We\'re reviewing your Vulnerable Sector Check.'
+        :(t.minors_status==='rejected'?'Not accepted: '+esc(t.minors_note||'')+'. ':'')+'Upload a Vulnerable Sector Check from your local police service (issued in the last 6 months). Only our safety team can see it.',
+        t.minors_status==='cleared'||t.minors_status==='submitted'?'':`<label style="display:inline-block">${smallBtn('Upload check (PDF or photo)',"document.getElementById('vsc-file').click()",true)}</label><input type="file" id="vsc-file" accept="application/pdf,image/jpeg,image/png,image/heic" style="display:none" onchange="uploadVsc(this.files[0])">`)}`;
+  }
+  const blocked=(blk||[]).length?blk.map(b=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--border)"><span style="font-weight:800">${esc(b.profiles?.name||'Yoodler')}</span><button onclick="unblock('${b.blocked_id}')" style="padding:7px 14px;border-radius:100px;border:1.5px solid var(--border);background:transparent;color:var(--text);font:800 13.5px 'Nunito',sans-serif;cursor:pointer">Unblock</button></div>`).join(''):'<div style="font-size:14px;color:var(--muted);font-weight:600">You haven\'t blocked anyone.</div>';
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;padding:8px 0 16px">${avatar(name,64,26)}
+      <div style="min-width:0;flex:1"><div style="font-size:22px;font-weight:800">${esc(name)}</div>
+      <div style="font-size:13.5px;color:var(--muted);font-weight:700">${esc(me.email||'')}</div>
+      <div style="margin-top:4px"><span class="tag">${ROLE==='tutor'?'🎓 Tutor':'📚 Learner'}</span>${ME.id_verified?'<span class="idv-chip">✓ ID verified</span>':''}${ROLE==='tutor'&&ME.tutor?.minors_status==='cleared'?'<span class="kid-chip">✓ Under-18s</span>':''}</div></div></div>
+    ${tutorHtml}
+    <div class="act-h">Your details</div>
+    <div class="form-g"><label class="form-lbl">Display name</label><input class="form-inp" id="p-name" maxlength="60" value="${esc(name)}"></div>
+    <button class="btn-primary" style="margin-top:0" onclick="saveName()">Save name</button>
+    <div class="form-hint">Your name and account are shared with yoodle.ca.</div>
+    ${ROLE==='learner'?`<div class="act-h">Your area</div><button class="row-btn" onclick="openAreaSheet()"><span>📍 ${esc(area?.label||'Not set')}</span><span style="color:var(--muted)">Change ›</span></button>
+    <div class="act-h">Your tutor requests</div><div id="my-requests">${spin()}</div>`:''}
+    <div class="act-h">Safety</div>
+    <button class="row-btn" onclick="openSafety()"><span>🛡️ Session safety guidelines</span><span style="color:var(--muted)">›</span></button>
+    <div class="card"><div class="box-lbl">Blocked people</div>${blocked}</div>
+    <div class="card"><div class="box-lbl">Help</div><div style="display:flex;flex-direction:column;gap:10px;font-size:15px;font-weight:700">
+      <a href="mailto:support@yoodle.ca" style="color:var(--text);text-decoration:none">Contact us · <span style="color:var(--purple)">support@yoodle.ca</span></a>
+      <a href="https://yoodle.ca/terms" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Terms of Use ›</a>
+      <a href="https://yoodle.ca/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy ›</a>
+      <a href="https://yoodle.ca/" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Manage or delete your Yoodle account ›</a></div></div>
+    <button class="btn-danger" onclick="signOut()">Sign out</button>`;
+  if(ROLE==='learner')loadMyRequests();
+}
+async function saveName(){
+  const name=document.getElementById('p-name').value.trim();if(!name)return toast('Name can\'t be empty');
+  const{error}=await sb.from('profiles').update({name}).eq('id',me.id);
+  if(error)return toast('❌ '+error.message);toast('✅ Saved');
+}
+async function setListed(on){
+  const{error}=await sb.from('tutor_profiles').update({listed:on}).eq('profile_id',me.id);
+  if(error)return toast('❌ '+error.message);
+  toast(on?'Listing switched on':'Listing hidden');renderProfile();
+}
+async function submitForReview(){const r=await rpc('tutor_submit_profile');if(r){toast('📨 Submitted! We\'ll review it soon');renderProfile();}}
+async function uploadVsc(file){
+  if(!file)return;
+  if(file.size>10*1024*1024)return toast('File is too big (max 10 MB)');
+  toast('Uploading…');
+  const path=`${me.id}/${Date.now()}-${file.name.replace(/[^a-z0-9.]+/gi,'_').slice(-60)}`;
+  const{error}=await sb.storage.from('tutor-vsc').upload(path,file,{upsert:false,contentType:file.type});
+  if(error)return toast('❌ '+error.message);
+  const r=await rpc('tutor_submit_vsc',{p_path:path});
+  if(r){toast('📨 Check submitted for review');renderProfile();}
+}
+
+/* ── TUTOR PROFILE EDITOR ── */
+let te={subjects:new Set(),grades:new Set(),mode:'both',avail:{},area:null};
+const teAreaSearch=makeAddrSearch('te-area-sug','te-area-st',p=>{te.area=p;document.getElementById('te-area').value=p.label;const s=document.getElementById('te-area-st');s.textContent='✅ '+p.label+'. Learners see your city, never your address';s.className='loc-status ok';},true);
+function teAreaInput(v){te.area=null;teAreaSearch.input(v);}
+async function openTutorEditor(){
+  const{data:t}=await sb.from('tutor_profiles').select('*').eq('profile_id',me.id).maybeSingle();
+  te={subjects:new Set(t?.subjects||[]),grades:new Set(t?.grade_levels||[]),mode:t?.modes||'both',avail:JSON.parse(JSON.stringify(t?.availability||{})),
+      area:t?.area_lat!=null?{lat:t.area_lat,lng:t.area_lng,label:t.service_area}:null};
+  document.getElementById('te-headline').value=t?.headline||'';
+  document.getElementById('te-bio').value=t?.bio||'';
+  document.getElementById('te-rate').value=t?.hourly_rate??'';
+  document.getElementById('te-area').value=t?.service_area||'';
+  document.getElementById('te-travel').value=t?.travel_km||10;document.getElementById('te-travel-v').textContent=t?.travel_km||10;
+  teRender();teSetMode(te.mode);
+}
+function teRender(){
+  document.getElementById('te-subjects').innerHTML=SUBJECTS.map(s=>`<button class="${te.subjects.has(s.k)?'on':''}" onclick="teToggle('subjects','${jsq(s.k)}')">${s.e} ${esc(s.k)}</button>`).join('');
+  document.getElementById('te-grades').innerHTML=GRADES.map(g=>`<button class="${te.grades.has(g)?'on':''}" onclick="teToggle('grades','${jsq(g)}')">${esc(g)}</button>`).join('');
+  document.getElementById('te-avail').innerHTML=`<div></div>${TIMES.map(([,l])=>`<div>${l}</div>`).join('')}`+DAYS.map(([k,l])=>`<div style="text-align:left;padding-top:9px">${l}</div>${TIMES.map(([tk])=>`<button class="${(te.avail[k]||[]).includes(tk)?'on':''}" onclick="teAvail('${k}','${tk}')">${(te.avail[k]||[]).includes(tk)?'✓':''}</button>`).join('')}`).join('');
+}
+function teToggle(set,v){const s=te[set];s.has(v)?s.delete(v):s.add(v);teRender();}
+function teAvail(d,t){const a=te.avail[d]=te.avail[d]||[];const i=a.indexOf(t);i>=0?a.splice(i,1):a.push(t);if(!a.length)delete te.avail[d];teRender();}
+function teSetMode(m){te.mode=m;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));document.getElementById('te-travel-g').style.display=m==='online'?'none':'block';
+  document.getElementById('te-area-hint').textContent=m==='online'
+    ?'Not needed for online lessons. You can leave this blank.'
+    :m==='in_person'
+      ?'Not required, but helpful: without a city, learners nearby can\'t find you for in-person lessons.'
+      :'Not required, but helpful for in-person lessons: it lets nearby learners find you. Online learners can find you either way.';}
+async function saveTutorProfile(){
+  const rate=document.getElementById('te-rate').value;
+  if(!te.subjects.size)return toast('Pick at least one subject');
+  if(!te.grades.size)return toast('Pick at least one grade level');
+  if(rate===''||+rate<0||+rate>500)return toast('Add an hourly rate between $0 and $500');
+  if(!document.getElementById('te-bio').value.trim())return toast('Add a short bio');
+  // City is optional, but text typed without picking a suggestion has no location to save.
+  if(!te.area&&document.getElementById('te-area').value.trim())return toast('Pick your city from the suggestions, or clear the field');
+  const btn=document.getElementById('te-save');btn.disabled=true;btn.textContent='Saving…';
+  const row={profile_id:me.id,headline:document.getElementById('te-headline').value.trim()||null,bio:document.getElementById('te-bio').value.trim(),
+    subjects:[...te.subjects],grade_levels:[...te.grades],hourly_rate:+rate,modes:te.mode,service_area:te.area?.label||null,
+    area_lat:te.area?.lat??null,area_lng:te.area?.lng??null,travel_km:+document.getElementById('te-travel').value,availability:te.avail};
+  const{error}=await sb.from('tutor_profiles').upsert(row,{onConflict:'profile_id'});
+  btn.disabled=false;btn.textContent='Save profile';
+  if(error)return toast('❌ '+error.message);
+  toast('✅ Profile saved');
+  await loadMe();
+  if(ME.tutor?.review_status==='draft'||ME.tutor?.review_status==='rejected'){const r=await rpc('tutor_submit_profile');if(r)toast('📨 Saved and sent for review');}
+  nav('profile');
+}
+
+/* ── LOOKING-FOR-A-TUTOR REQUESTS ── */
+// Learners post a request; live tutors who fit it (format, travel distance, under-18 clearance)
+// see it in their Learners tab and can reply once, which starts a normal chat.
+function availSummary(a){
+  return DAYS.filter(([k])=>a&&(a[k]||[]).length)
+    .map(([k,l])=>l+' '+a[k].map(t=>((TIMES.find(x=>x[0]===t)||[])[1]||t).toLowerCase()).join('/')).join(' · ');
+}
+function reqModeLabel(m){return m==='online'?'💻 Online':m==='in_person'?'📍 In person':'📍 In person or 💻 online';}
+
+// Learner: post / list / close
+let pr={forChild:false,mode:'either',avail:{}};
+function openPostRequest(){
+  pr={forChild:!!findState.forChild,mode:findState.mode||'either',avail:{}};
+  document.getElementById('pr-subject').value=findState.subject||'';
+  document.getElementById('pr-grade').value=findState.grade||'';
+  document.getElementById('pr-rate').value=findState.maxRate||'';
+  document.getElementById('pr-note').value='';
+  document.getElementById('pr-area').textContent=area?.label||'Not set';
+  prSetWho(pr.forChild);prSetMode(pr.mode);prRenderAvail();
+  openOv('post-modal');
+}
+function prSetWho(child){
+  pr.forChild=child;
+  document.getElementById('pr-me').classList.toggle('on',!child);
+  document.getElementById('pr-child').classList.toggle('on',child);
+  document.getElementById('pr-who-hint').textContent=child
+    ?'🛡️ Only tutors with a cleared Vulnerable Sector Check will see this. Don\'t add your child\'s name. The subject and grade are enough.':'';
+}
+function prSetMode(m){
+  pr.mode=m;
+  document.querySelectorAll('[data-prm]').forEach(b=>b.classList.toggle('on',b.dataset.prm===m));
+  document.getElementById('pr-area-g').style.display=m==='online'?'none':'block';
+}
+function prRenderAvail(){
+  document.getElementById('pr-avail').innerHTML=`<div></div>${TIMES.map(([,l])=>`<div>${l}</div>`).join('')}`+DAYS.map(([k,l])=>`<div style="text-align:left;padding-top:9px">${l}</div>${TIMES.map(([tk])=>`<button class="${(pr.avail[k]||[]).includes(tk)?'on':''}" onclick="prAvail('${k}','${tk}')">${(pr.avail[k]||[]).includes(tk)?'✓':''}</button>`).join('')}`).join('');
+}
+function prAvail(d,t){const a=pr.avail[d]=pr.avail[d]||[];const i=a.indexOf(t);i>=0?a.splice(i,1):a.push(t);if(!a.length)delete pr.avail[d];prRenderAvail();}
+async function postRequest(){
+  const subject=document.getElementById('pr-subject').value,grade=document.getElementById('pr-grade').value;
+  const rate=document.getElementById('pr-rate').value,note=document.getElementById('pr-note').value.trim();
+  if(!subject)return toast('Pick a subject');
+  if(!grade)return toast('Pick a grade level');
+  if(pr.mode!=='online'&&!area)return toast('Set your area, or choose Online');
+  const btn=document.getElementById('pr-save');btn.disabled=true;btn.textContent='Posting…';
+  const online=pr.mode==='online';
+  const r=await rpc('tutor_post_request',{p_for_child:pr.forChild,p_subject:subject,p_grade:grade,p_mode:pr.mode,
+    p_area_label:online?null:area.label,p_lat:online?null:area.lat,p_lng:online?null:area.lng,
+    p_max_rate:rate?+rate:null,p_availability:pr.avail,p_note:note||null});
+  btn.disabled=false;btn.textContent='Post request';
+  if(!r)return;
+  closeOv('post-modal');
+  toast('📣 Posted! Tutors who fit will message you here');
+  if(document.getElementById('app-profile').classList.contains('active'))loadMyRequests();
+}
+async function loadMyRequests(){
+  const el=document.getElementById('my-requests');if(!el)return;
+  const{data,error}=await sb.rpc('tutor_my_requests');
+  if(error){el.innerHTML='<div class="form-hint">Couldn\'t load your requests.</div>';return;}
+  const post=`<button class="row-btn" onclick="openPostRequest()"><span>📣 Post a new request</span><span style="color:var(--muted)">›</span></button>`;
+  if(!data?.length){el.innerHTML='<div class="form-hint" style="margin:0 2px 10px">Can\'t find the right tutor? Post what you need and tutors who fit can message you.</div>'+post;return;}
+  el.innerHTML=data.map(r=>{
+    const open=r.status==='open';
+    return`<div class="card">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><div class="tc-name">${subjEmoji(r.subject)} ${esc(r.subject)} · ${esc(r.grade_level)}</div><span class="tag">${open?'Open':r.status==='expired'?'Expired':'Closed'}</span></div>
+      <div class="tc-meta" style="margin-top:6px"><span>${r.for_child?'👧 For my child':'🙋 For me'}</span><span>${reqModeLabel(r.mode)}</span><span>💬 ${r.responses} ${r.responses===1?'tutor':'tutors'} replied</span></div>
+      ${open?`<div class="form-hint">Open until ${new Date(r.expires_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})} · replies arrive in Messages</div>
+      <button class="btn-text" style="padding:8px 0 0;text-align:left;width:auto" onclick="closeRequest('${r.id}')">Close request</button>`:''}
+    </div>`;}).join('')+post;
+}
+async function closeRequest(id){
+  if(!confirm('Close this request? Tutors will stop seeing it. Existing chats stay open.'))return;
+  if(await rpc('tutor_close_request',{p_request:id})){toast('Request closed');loadMyRequests();}
+}
+
+// Tutor: browse and reply
+let lrMine=true,lrRows=[],replyReq=null;
+function setLearnerFilter(mine){lrMine=mine;renderLearners();}
+async function renderLearners(){
+  document.getElementById('lr-mine').classList.toggle('on',lrMine);
+  document.getElementById('lr-all').classList.toggle('on',!lrMine);
+  const el=document.getElementById('learners-list');
+  const t=ME.tutor||{},live=t.listed&&t.review_status==='approved'&&ME.id_verified&&!t.admin_hidden;
+  if(!live){
+    el.innerHTML=emptyState('🔒','Go live to see learners','Once your profile is approved, your ID is verified and your listing is switched on, learners looking for a tutor show up here.')
+      +`<button class="btn-primary" onclick="nav('profile')">See what's left</button>`;
+    return;
+  }
+  el.innerHTML=spin();
+  const{data,error}=await sb.rpc('tutor_browse_requests',{p_only_my_subjects:lrMine});
+  if(error){el.innerHTML=emptyState('⚠️','Couldn\'t load requests',esc(error.message));return;}
+  lrRows=data||[];
+  el.innerHTML=lrRows.length?lrRows.map(requestCard).join('')
+    :emptyState('🔭','No requests right now',lrMine?'Nothing matches your subjects and grades yet. Try "All subjects", or check back soon.':'Check back soon. New requests show up here.');
+}
+function requestCard(r,i){
+  const where=r.mode==='online'?'💻 Online'
+    :r.distance_km!=null?`📍 ${r.distance_km<1?'< 1':r.distance_km} km · ${esc(r.area_label||'')}${r.mode==='either'?' · or online':''}`
+    :r.mode==='either'?'💻 Online or in person':`📍 ${esc(r.area_label||'')}`;
+  const when=availSummary(r.availability);
+  return`<div class="card">
+    <div class="tc-top">${avatar(r.first_name,40,16)}<div style="flex:1;min-width:0"><div class="tc-name">${esc(r.first_name)}${r.for_child?' <span class="tag" style="margin-left:4px">For their child</span>':''}</div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--muted)">Posted ${timeAgo(r.created_at)}</div></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span class="tag">${subjEmoji(r.subject)} ${esc(r.subject)}</span><span class="tag">${esc(r.grade_level)}</span></div>
+    <div class="tc-meta" style="margin-top:8px"><span>${where}</span>${r.max_rate!=null?`<span>Budget up to ${money(r.max_rate)}/hr</span>`:''}</div>
+    ${when?`<div class="form-hint">🗓️ ${esc(when)}</div>`:''}
+    ${r.note?`<div class="box" style="margin:10px 0 0">${esc(r.note)}</div>`:''}
+    ${r.responded
+      ?`<button class="btn-text" style="padding:12px 0 0" onclick="chatWith('${r.learner_id}','${jsq(r.first_name)}',true)">✓ You replied · Open chat ›</button>`
+      :`<button class="btn-primary" style="margin-top:12px;padding:12px" onclick="openReply(${i})">Offer to help</button>`}
+  </div>`;
+}
+function openReply(i){
+  replyReq=lrRows[i];if(!replyReq)return;
+  const r=replyReq;
+  document.getElementById('rp-name').textContent=r.first_name;
+  document.getElementById('rp-summary').innerHTML=`<div class="box-lbl">Their request</div><div class="box-txt">${subjEmoji(r.subject)} ${esc(r.subject)} · ${esc(r.grade_level)}${r.for_child?' · for their child':''}</div>${r.note?`<div class="form-hint">“${esc(r.note)}”</div>`:''}`;
+  document.getElementById('rp-msg').value=`Hi ${r.first_name}, I saw you're looking for help with ${r.subject} (${r.grade_level}). `;
+  openOv('reply-modal');
+}
+async function sendRequestReply(){
+  const r=replyReq;if(!r)return;
+  const msg=document.getElementById('rp-msg').value.trim();
+  if(!msg)return toast('Write a short message');
+  const btn=document.getElementById('rp-send');btn.disabled=true;btn.textContent='Sending…';
+  const res=await rpc('tutor_respond_request',{p_request:r.id,p_message:msg});
+  btn.disabled=false;btn.textContent='Send';
+  if(!res)return;
+  closeOv('reply-modal');
+  r.responded=true;r.conversation_id=res.conversation_id;
+  document.getElementById('learners-list').innerHTML=lrRows.map(requestCard).join('');
+  toast('✅ Sent! The conversation is in Messages');
+  openChat(res.conversation_id,r.learner_id,r.first_name,true);
+}
+</script>
 </body>
 </html>
