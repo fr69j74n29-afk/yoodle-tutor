@@ -145,6 +145,55 @@ body:not(.theme-sage-dark) .nav-i.active{color:#2E4A38}
 .nav-i svg{width:22px;height:22px}
 .nav-dot{position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--danger);display:none}
 
+/* MAP VIEW — Find (tutors) and Learners (requests). MapLibre + OpenFreeMap like yoodle.ca, loaded on first use */
+.vt-row{display:flex;align-items:center;gap:8px;margin:10px 2px 0}
+.vt-sub{flex:1;min-width:0;font-size:13px;font-weight:800;color:var(--muted)}
+#app-find,#app-learners{position:relative}
+#find-list,#learners-list{padding-bottom:calc(var(--sab) + 84px)} /* room for the floating pill */
+.browse-toggle{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:10;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));border:none;border-radius:100px;padding:11px 24px;cursor:pointer;display:none;align-items:center;gap:8px;color:#fff;font:800 14px 'Nunito',sans-serif;box-shadow:0 4px 16px rgba(92,138,106,.25)}
+.browse-toggle.show{display:flex}
+.browse-toggle:active{transform:translateX(-50%) scale(.96)}
+.browse-toggle svg{width:16px;height:16px}
+.map-wrap{display:none;flex:1;min-height:0;position:relative;margin-top:10px;border-top:1px solid var(--border);overflow:hidden;background:var(--surface2)}
+.map-wrap.show{display:block}
+/* Id selectors on purpose: maplibre-gl.css loads later and sets .maplibregl-map{position:relative},
+   which beat a plain class here and collapsed the map to 0px tall. */
+#find-map,#learners-map{position:absolute;top:0;right:0;bottom:0;left:0}
+.maplibregl-map{font-family:'Nunito',sans-serif}
+.maplibregl-ctrl-attrib{font-size:10.5px}
+.map-note{position:absolute;top:10px;left:10px;right:56px;z-index:2;pointer-events:none;display:flex}
+.map-note span{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:100px;padding:5px 11px;font-size:12px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.12);line-height:1.35}
+.map-pin{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:100px;background:var(--surface);border:2px solid var(--btn-a);color:var(--text);font:800 13px 'Nunito',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap;position:relative}
+.map-pin::after{content:'';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--btn-a);border-bottom:0}
+.map-pin .pin-av{width:24px;height:24px;border-radius:50%;background:var(--btn-a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px}
+.map-pin.req{border-color:var(--orange)}
+.map-pin.req::after{border-top-color:var(--orange)}
+.map-pin.req .pin-av{background:rgba(249,115,22,.15);font-size:14px}
+.map-pin.done{opacity:.6}
+.map-pin.other{opacity:.55}
+.map-pin.nocheck{border-style:dashed;border-color:var(--muted)}
+.map-pin.nocheck::after{border-top-color:var(--muted)}
+.map-pin.lrn{border-color:#2563EB}
+.map-pin.lrn::after{border-top-color:#2563EB}
+.map-pin.lrn .pin-av{background:rgba(37,99,235,.14);font-size:14px}
+.maplibregl-marker:hover{z-index:5}
+.map-me{width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.2),0 1px 4px rgba(0,0,0,.3)}
+
+/* YOODLE SITES PAGE — buttons to yoodle.ca and pro.yoodle.ca (same account on all Yoodle sites) */
+/* Square tiles, same as yoodle.ca "More from Yoodle". Add a site = add one more <a class="site-tile">. */
+.site-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:560px}
+.site-tile{position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;padding:16px;border-radius:20px;text-decoration:none;color:#fff;font-family:'Nunito',sans-serif;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.15);transition:transform .15s}
+.site-tile:active{transform:scale(.97)}
+.site-tile:hover{transform:translateY(-2px)}
+.site-tile:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.site-tile.main{background:linear-gradient(145deg,#1F8E9E,#156672)}
+.site-tile.pros{background:linear-gradient(145deg,#EA6A12,#C4560B)}
+.site-ic{position:absolute;top:14px;left:14px;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:28px}
+.site-go{position:absolute;top:14px;right:16px;font-size:18px;font-weight:800;opacity:.85}
+.site-name{font-size:18px;font-weight:900;line-height:1.15}
+.site-d{font-size:12.5px;font-weight:700;line-height:1.35;opacity:.92}
+@media (max-width:340px){.site-d{display:none}}
+
 /* FORMS */
 .form-g{margin-bottom:16px}
 .form-lbl{display:block;font-size:13.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
@@ -308,6 +357,40 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
 .card-menu-drop.open{display:block}
 .card-menu-drop button{width:100%;padding:13px 16px;background:none;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;text-align:left;cursor:pointer}
 .card-menu-drop button.destructive{color:var(--danger)}
+
+/* ── DESKTOP (≥900px): full-width app, sidebar nav, list + map side by side, centred dialogs ──
+   Phones and small tablets keep the single-column app above. paintView() reads the same breakpoint (WIDE_MQ). */
+@media(min-width:900px){
+  body{max-width:none;box-shadow:none}
+  #view-main{display:none;grid-template-columns:232px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  #view-main[style*="flex"]{display:grid!important}
+  .top-bar{grid-column:1/-1;grid-row:1;padding:12px 28px}
+  .app-view{grid-column:2;grid-row:2}
+  /* Sidebar: the bottom nav turned vertical */
+  .bottom-nav{grid-column:1;grid-row:2;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;padding:18px 14px;border-top:none;border-right:1px solid var(--border)}
+  .nav-i{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:14px;padding:12px 16px;border-radius:12px;font-size:15px;font-weight:800;text-transform:none;letter-spacing:0}
+  .nav-i:hover{background:var(--surface2);color:var(--text)}
+  .nav-i.active{background:var(--surface2)}
+  .nav-i svg{width:21px;height:21px;flex-shrink:0}
+  .nav-dot{position:static;margin-left:auto}
+  /* Centred reading column on every page */
+  .view-scroll{padding:28px max(32px,calc((100% - 760px)/2)) 40px}
+  #app-find>div:first-child,#app-learners>div:first-child,#app-sessions>div:first-child{padding:24px max(32px,calc((100% - 760px)/2)) 0}
+  #app-find.split>div:first-child,#app-learners.split>div:first-child{padding:20px 24px 0}
+  /* Find & Learners: filters + list on the left, map filling the right (class set by paintView) */
+  #app-find.split.active,#app-learners.split.active{display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .split>div:first-child{grid-column:1;grid-row:1}
+  .split>.view-scroll{grid-column:1;grid-row:2;padding:12px 24px 32px}
+  .split>.map-wrap{grid-column:2;grid-row:1/3;margin-top:0;border-top:none;border-left:1px solid var(--border)}
+  .split>.browse-toggle{display:none!important}
+  #find-list,#learners-list{padding-bottom:40px}
+  /* Bottom sheets become centred dialogs */
+  .modal-ov,.gate{align-items:center;padding:24px}
+  .modal-sheet{max-width:540px;border-radius:24px;max-height:min(88dvh,900px)}
+  #chat-modal .modal-sheet{height:min(85dvh,780px)!important;max-width:620px}
+  .modal-handle{display:none}
+  .toast{top:76px}
+}
 </style>
 </head>
 <body>
@@ -331,12 +414,12 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
       <div><div class="ga-choice-t">Become a tutor</div><div class="ga-choice-d">Teach students near you or online</div></div>
     </button>
     <div class="ga-trust">
-      <div class="ga-step"><div class="e">🪪</div><div><b>Every tutor is ID-verified</b><span>Checked by Stripe before they can appear in search.</span></div></div>
+      <div class="ga-step"><div class="e">🪪</div><div><b>Look for the ✓ ID badge</b><span>Tutors can verify their ID with Stripe. Verified tutors show a ✓ ID badge.</span></div></div>
       <div class="ga-step"><div class="e">🛡️</div><div><b>Background checks for under-18s</b><span>Only tutors with a cleared Vulnerable Sector Check can teach children.</span></div></div>
       <div class="ga-step"><div class="e">👪</div><div><b>Parents stay in charge</b><span>Children don't get accounts. Bookings and messages go through the parent.</span></div></div>
     </div>
     <div class="ga-alt">Already on Yoodle? <a onclick="openAuthSheet('signin')">Sign in with your Yoodle account</a></div>
-    <div class="auth-legal">By continuing you agree to Yoodle's <a href="https://yoodle.ca/terms">Terms of Use</a> and <a href="https://yoodle.ca/privacy">Privacy Policy</a>.<br><a href="https://yoodle.ca/">yoodle.ca</a> · <a href="mailto:support@yoodle.ca">support@yoodle.ca</a></div>
+    <div class="auth-legal">By continuing you agree to Yoodle's <a href="https://yoodle.ca/terms">Terms of Use</a> and <a href="https://yoodle.ca/privacy">Privacy Policy</a>.<br><a href="https://yoodle.ca/">yoodle.ca</a> · <a href="https://pro.yoodle.ca/">Yoodle Pros</a> · <a href="mailto:support@yoodle.ca">support@yoodle.ca</a></div>
   </div>
   <div class="ga-dim" id="ga-dim" onclick="closeAuthSheet()"></div>
   <div class="ga-sheet" id="ga-sheet" role="dialog" aria-modal="true" aria-labelledby="ga-sheet-h">
@@ -402,9 +485,11 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
         <button class="row-btn" style="margin:0;padding:10px 14px;font-size:14px;width:auto" onclick="openFilters()">⚙️ Filters <span id="filter-count" class="tag" style="display:none"></span></button>
       </div>
       <button class="row-btn" style="margin:8px 0 0;padding:10px 14px;font-size:14px" onclick="openPostRequest()"><span>📣 Post what you're looking for</span><span style="color:var(--muted)">›</span></button>
-      <div id="find-sub" style="font-size:13px;font-weight:800;color:var(--muted);margin:10px 2px 0"></div>
+      <div class="vt-row"><div class="vt-sub" id="find-sub"></div></div>
     </div>
     <div class="view-scroll" id="find-list" style="padding-top:10px"></div>
+    <div class="map-wrap" id="find-map-wrap"><div class="map-box" id="find-map"></div><div class="map-note" id="find-map-note"></div></div>
+    <button class="browse-toggle" id="find-vt" onclick="toggleViewMode('find')"></button>
   </div>
 
   <!-- LEARNERS (tutors browse open "looking for a tutor" requests) -->
@@ -416,8 +501,11 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
         <button id="lr-mine" onclick="setLearnerFilter(true)">My subjects &amp; grades</button>
         <button id="lr-all" onclick="setLearnerFilter(false)">All subjects</button>
       </div>
+      <div class="vt-row"><div class="vt-sub" id="learners-sub"></div></div>
     </div>
-    <div class="view-scroll" id="learners-list" style="padding-top:12px"></div>
+    <div class="view-scroll" id="learners-list" style="padding-top:10px"></div>
+    <div class="map-wrap" id="learners-map-wrap"><div class="map-box" id="learners-map"></div><div class="map-note" id="learners-map-note"></div></div>
+    <button class="browse-toggle" id="learners-vt" onclick="toggleViewMode('learners')"></button>
   </div>
 
   <!-- SESSIONS -->
@@ -477,6 +565,28 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
     </div>
   </div>
 
+  <!-- YOODLE SITES -->
+  <div class="app-view" id="app-yoodle">
+    <div class="view-scroll">
+      <div class="section-h" style="margin-bottom:6px">More from Yoodle</div>
+      <div class="section-sub" style="margin-bottom:18px">Sign in with this same account on every Yoodle site.</div>
+      <div class="site-grid">
+        <a class="site-tile main" href="https://yoodle.ca/" target="_blank" rel="noopener">
+          <span class="site-ic" aria-hidden="true">🤝</span>
+          <span class="site-name">Yoodle</span>
+          <span class="site-d">Post local jobs, find work and helpers nearby</span>
+          <span class="site-go" aria-hidden="true">↗</span>
+        </a>
+        <a class="site-tile pros" href="https://pro.yoodle.ca/" target="_blank" rel="noopener">
+          <span class="site-ic" aria-hidden="true">🧰</span>
+          <span class="site-name">Yoodle Pros</span>
+          <span class="site-d">Plumbers, electricians, HVAC &amp; more</span>
+          <span class="site-go" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <nav class="bottom-nav">
     <button class="nav-i" id="ni-find" onclick="nav('find')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find
@@ -493,16 +603,27 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
     <button class="nav-i" id="ni-profile" onclick="nav('profile')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
     </button>
+    <button class="nav-i" id="ni-yoodle" onclick="nav('yoodle')" aria-label="Other Yoodle sites">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Sites
+    </button>
   </nav>
 </div>
 
 <!-- ══ SHEETS ══ -->
+<!-- Learner request tapped on the map -->
+<div class="modal-ov" id="pin-sheet" onclick="if(event.target===this)closeOv('pin-sheet')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-head"><div class="modal-title" id="pin-title">Learner request</div><button class="x-btn" onclick="closeOv('pin-sheet')">✕</button></div>
+    <div id="pin-body" style="margin-top:12px"></div>
+  </div>
+</div>
 <!-- Area -->
 <div class="modal-ov" id="area-sheet" style="z-index:1100" onclick="if(event.target===this)closeOv('area-sheet')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title" style="margin-bottom:6px">Where are you?</div>
-    <div class="section-sub">We use this to show tutors near you. It stays on this device.</div>
+    <div class="section-sub">We use this to show tutors near you. It stays on this device unless you switch on "Let tutors near me see I'm looking" in Profile.</div>
     <button class="btn-primary" style="margin-top:0" onclick="areaUseGps()">📍 Use my location</button>
     <div style="text-align:center;font-size:13px;font-weight:800;color:var(--muted);margin:12px 0 8px">or type your area</div>
     <div class="loc-wrap">
@@ -734,6 +855,25 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
   </div>
 </div>
 
+<!-- Password gate: every account needs a password (new email-code / Google accounts have none) -->
+<div class="gate" id="pw-gate">
+  <div class="modal-sheet">
+    <div class="modal-title" style="margin-bottom:6px">Set a password</div>
+    <div class="section-sub">Your account needs a password. You'll use it with <strong id="pwg-email"></strong> to sign in here and on yoodle.ca. Email codes and Google still work too.</div>
+    <div class="form-g"><label class="form-lbl">New password <span class="req">*</span></label>
+      <input class="form-inp" id="pwg-new" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" oninput="pwgCheck()"></div>
+    <div class="form-g"><label class="form-lbl">Confirm password <span class="req">*</span></label>
+      <input class="form-inp" id="pwg-confirm" type="password" autocomplete="new-password" placeholder="Type it again" oninput="pwgCheck()" onkeydown="if(event.key==='Enter')savePasswordGate()"></div>
+    <label class="check-row" style="margin-top:0"><input type="checkbox" onchange="pwgShow(this.checked)"> <span>Show password</span></label>
+    <div class="form-g" id="pwg-nonce-g" style="display:none"><label class="form-lbl">Code from your email <span class="req">*</span></label>
+      <input class="form-inp" id="pwg-nonce" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="6-digit code">
+      <div class="form-hint">For your security we emailed you a code. Enter it to confirm the new password.</div></div>
+    <div class="form-hint" id="pwg-msg" style="margin:0 2px 4px"></div>
+    <button class="btn-primary" id="pwg-go" disabled onclick="savePasswordGate()">Save password</button>
+    <button class="btn-text" onclick="signOut()">Not now, sign out</button>
+  </div>
+</div>
+
 <!-- Onboarding gate: role + 18+ + terms (once per account) -->
 <div class="gate" id="onboard-gate">
   <div class="modal-sheet">
@@ -800,7 +940,7 @@ function openSafety(){
 }
 
 /* ── THEME (same as yoodle.ca; shares the saved choice key) ── */
-function setTheme(n){document.body.classList.toggle('theme-sage-dark',n!=='sage-light');try{localStorage.setItem('yoodle-theme',n);}catch(e){}}
+function setTheme(n){document.body.classList.toggle('theme-sage-dark',n!=='sage-light');try{localStorage.setItem('yoodle-theme',n);}catch(e){}mapsFollowTheme();}
 function toggleTheme(){setTheme(document.body.classList.contains('theme-sage-dark')?'sage-light':'sage-dark');}
 try{setTheme(localStorage.getItem('yoodle-theme')||'sage-dark');}catch(e){setTheme('sage-dark');}
 
@@ -854,7 +994,11 @@ try{Object.assign(findState,JSON.parse(localStorage.getItem('yt_find')||'{}'));}
 /* ── START-UP ── */
 window.addEventListener('DOMContentLoaded',()=>{
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
-  sb.auth.getSession().then(({data:{session}})=>{if(session)startApp(session);});
+  // ?start=tutor (from yoodle.ca: profile "Become a Tutor", tutoring invite): pick "tutor" in onboarding,
+  // and open the tutor sign-in sheet when signed out.
+  let _startTutor=false;
+  try{_startTutor=new URLSearchParams(location.search).get('start')==='tutor';if(_startTutor)localStorage.setItem('yt_intent','tutor');}catch(e){}
+  sb.auth.getSession().then(({data:{session}})=>{if(session)startApp(session);else if(_startTutor)openAuthSheet('tutor');});
   sb.auth.onAuthStateChange((_e,session)=>{if(session)startApp(session);else{me=null;_startedFor=null;showAuth();}});
   fillSelects();
 });
@@ -870,6 +1014,10 @@ async function startApp(session){
   await loadMe();
   if(!ME)return;
   if(ME.suspended){openOv('suspended-gate');return;}
+  if(!await hasPassword()){openPasswordGate();return;}
+  afterPassword();
+}
+function afterPassword(){
   if(!ME.member){openOnboarding();return;}
   enterApp();
 }
@@ -882,6 +1030,7 @@ function enterApp(){
   document.getElementById('ni-find').style.display=ROLE==='learner'?'flex':'none';
   document.getElementById('ni-learners').style.display=ROLE==='tutor'?'flex':'none';
   loadBlocked();subscribeRealtime();refreshBadges();
+  if(ROLE==='learner')loadMyPin();
   nav(ROLE==='learner'?'find':'sessions');
   // Reminders also fire when the app is open: check every 5 min (server creates them; this just refreshes the bell)
   setInterval(refreshBadges,5*60*1000);
@@ -895,7 +1044,7 @@ function openAuthSheet(mode){
   try{if(mode==='learner'||mode==='tutor')localStorage.setItem('yt_intent',mode);}catch(e){}
   const h=document.getElementById('ga-sheet-h'),p=document.getElementById('ga-sheet-p');
   if(mode==='learner'){h.textContent='Find a tutor';p.textContent='Sign in or create a free account. Already on yoodle.ca? Use the same account.';}
-  else if(mode==='tutor'){h.textContent='Become a tutor';p.textContent='Sign in or create a free account. Next you\'ll set up your tutor profile and verify your ID.';}
+  else if(mode==='tutor'){h.textContent='Become a tutor';p.textContent='Sign in or create a free account. Next you\'ll set up your tutor profile.';}
   else{h.textContent='Welcome back';p.textContent='Use the same account as yoodle.ca.';}
   openOv('ga-dim');openOv('ga-sheet');
 }
@@ -942,6 +1091,57 @@ async function signInWithPassword(){
 }
 async function signOut(){if(sb)await sb.auth.signOut();location.reload();}
 
+/* ── PASSWORD: required on every account ──
+   Email-code and Google sign-ins create accounts with no password. After any sign-in we ask the
+   database (tutor_has_password, migration 009) and, if there's none, block the app until one is set.
+   The password belongs to the shared Yoodle account, so it works on yoodle.ca too. */
+const PW_MIN=8;
+async function hasPassword(){
+  const{data,error}=await sb.rpc('tutor_has_password');
+  if(error){console.warn('tutor_has_password',error.message);return true;} // check unavailable: don't lock people out
+  return data===true;
+}
+function openPasswordGate(){
+  document.getElementById('pwg-email').textContent=me.email||'your email';
+  ['pwg-new','pwg-confirm','pwg-nonce'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pwg-nonce-g').style.display='none';
+  pwgCheck();openOv('pw-gate');
+  setTimeout(()=>document.getElementById('pwg-new').focus(),60);
+}
+function pwgShow(on){['pwg-new','pwg-confirm'].forEach(id=>document.getElementById(id).type=on?'text':'password');}
+function pwgCheck(){
+  const a=document.getElementById('pwg-new').value,b=document.getElementById('pwg-confirm').value,msg=document.getElementById('pwg-msg');
+  const ok=a.length>=PW_MIN&&a===b;
+  msg.textContent=a&&a.length<PW_MIN?`At least ${PW_MIN} characters.`:b&&a!==b?'The passwords don\'t match yet.':'';
+  msg.style.color=msg.textContent?'var(--danger)':'';
+  document.getElementById('pwg-go').disabled=!ok;
+  return ok;
+}
+async function savePasswordGate(){
+  if(!pwgCheck())return;
+  const password=document.getElementById('pwg-new').value,btn=document.getElementById('pwg-go');
+  const nonceOn=document.getElementById('pwg-nonce-g').style.display!=='none';
+  const nonce=document.getElementById('pwg-nonce').value.replace(/\D/g,'');
+  if(nonceOn&&nonce.length<6)return toast('Enter the code from your email');
+  btn.disabled=true;btn.textContent='Saving…';
+  const{error}=await sb.auth.updateUser(nonceOn?{password,nonce}:{password});
+  btn.textContent='Save password';btn.disabled=false;
+  if(error){
+    // Supabase's "secure password change" setting wants a fresh code when the sign-in isn't recent.
+    if(/reauth|nonce/i.test(error.message)&&!nonceOn){
+      const r=await sb.auth.reauthenticate();
+      if(r.error)return toast('❌ '+r.error.message);
+      document.getElementById('pwg-nonce-g').style.display='block';
+      document.getElementById('pwg-nonce').focus();
+      return toast('📧 We emailed you a code to confirm');
+    }
+    return toast('❌ '+(/same|different/i.test(error.message)?'Pick a different password.':error.message));
+  }
+  closeOv('pw-gate');
+  toast('🔒 Password saved');
+  afterPassword();
+}
+
 /* ── ONBOARDING: role, 18+, terms ── */
 let obRole=null;
 function openOnboarding(){
@@ -981,6 +1181,152 @@ function nav(view){
   if(view==='messages')loadConversations();
   if(view==='profile')renderProfile();
   if(view==='tutoredit')openTutorEditor();
+}
+
+/* ── MAP VIEW: List | Map toggle on Find and Learners ──
+   MapLibre + OpenFreeMap (same version and styles as yoodle.ca), loaded the first time someone opens a map.
+   Pins use map_lat/map_lng from tutor_search / tutor_browse_requests, which the database already blurs
+   to ~1 km per person (migration 007). Exact locations never reach the browser. */
+var findRows=null, MAPS=null, _mlLoad=null;
+var viewMode={find:'list',learners:'list'};
+try{Object.assign(viewMode,JSON.parse(localStorage.getItem('yt_viewmode')||'{}'));}catch(e){}
+var OFM_STYLE={light:'https://tiles.openfreemap.org/styles/positron',dark:'https://tiles.openfreemap.org/styles/dark'};
+function mapTheme(){return document.body.classList.contains('theme-sage-dark')?'dark':'light';}
+function loadMapLib(){
+  if(window.maplibregl)return Promise.resolve();
+  return _mlLoad||(_mlLoad=new Promise((res,rej)=>{
+    const css=document.createElement('link');css.rel='stylesheet';css.href='https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css';document.head.appendChild(css);
+    const js=document.createElement('script');js.src='https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js';
+    js.onload=res;js.onerror=()=>{_mlLoad=null;rej(new Error('maplibre'));};document.head.appendChild(js);
+  }));
+}
+function getMap(id){
+  MAPS=MAPS||{};
+  return MAPS[id]||(MAPS[id]=(async()=>{
+    await loadMapLib();
+    const c=document.createElement('canvas');if(!(c.getContext('webgl2')||c.getContext('webgl')))throw new Error('webgl');
+    const map=new maplibregl.Map({container:id,style:OFM_STYLE[mapTheme()],center:[-79.38,43.65],zoom:9,
+      attributionControl:false,dragRotate:false,pitchWithRotate:false,touchPitch:false,fadeDuration:150});
+    map.touchZoomRotate.disableRotation();map.keyboard.disableRotation();
+    map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+    map.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:'<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a>'}),'bottom-left');
+    return{map,markers:[],theme:mapTheme()};
+  })().catch(e=>{delete MAPS[id];throw e;}));
+}
+function mapsFollowTheme(){
+  if(!MAPS)return;
+  Object.values(MAPS).forEach(p=>p.then(m=>{const t=mapTheme();if(m.theme!==t){m.theme=t;m.map.setStyle(OFM_STYLE[t]);}}).catch(()=>{}));
+}
+const VT_LIST='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>List';
+const VT_MAP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map';
+function toggleViewMode(which){setViewMode(which,viewMode[which]==='map'?'list':'map');}
+function setViewMode(which,mode){
+  viewMode[which]=mode;
+  try{localStorage.setItem('yt_viewmode',JSON.stringify(viewMode));}catch(e){}
+  paintView(which);
+}
+// Shows the list or the map for a view. rows===null means "not loaded" (spinner, set-your-area, not live, error):
+// those states stay in the list. Once results are in (even zero), the map and the pill are available.
+// Desktop (same breakpoint as the CSS): list and map side by side, no List/Map pill.
+const WIDE_MQ=matchMedia('(min-width:900px)');
+function paintView(which){
+  const rows=which==='find'?findRows:lrRows,loaded=rows!=null,wide=WIDE_MQ.matches;
+  const showMap=loaded&&(wide||viewMode[which]==='map');
+  const split=wide&&showMap;
+  document.getElementById('app-'+which).classList.toggle('split',split);
+  // Floating pill like yoodle.ca: says where it takes you.
+  const vt=document.getElementById(which+'-vt');
+  vt.innerHTML=showMap?VT_LIST:VT_MAP;vt.classList.toggle('show',loaded&&!wide);
+  document.getElementById(which+'-list').style.display=showMap&&!split?'none':'';
+  document.getElementById(which+'-map-wrap').classList.toggle('show',showMap);
+  if(showMap)drawMap(which);
+}
+WIDE_MQ.addEventListener('change',()=>{
+  ['find','learners'].forEach(w=>{if(document.getElementById('app-'+w)?.classList.contains('active'))paintView(w);});
+});
+var _myTutorArea; // tutor's own (already rounded) city point, to centre the Learners map
+async function myTutorArea(){
+  if(_myTutorArea!==undefined)return _myTutorArea;
+  try{const{data}=await sb.from('tutor_profiles').select('area_lat,area_lng').eq('profile_id',me.id).maybeSingle();
+    _myTutorArea=data?.area_lat!=null?{lat:data.area_lat,lng:data.area_lng}:null;}catch(e){_myTutorArea=null;}
+  return _myTutorArea;
+}
+// Extra pins for the map only (not the list), cached for a minute per place:
+//   Find     → every live in-person tutor near your area (tutor_map_tutors), not just search matches
+//   Learners → learners who switched on "Let tutors near me see I'm looking" (tutor_map_learners)
+var _mapExtra={};
+async function mapExtra(which){
+  const fc=!!findState.forChild; // for a child → database returns only tutors cleared for under-18s
+  const key=which==='find'?`${area?.lat},${area?.lng},${fc}`:'me',c=_mapExtra[which];
+  if(c&&c.key===key&&Date.now()-c.at<60000)return c.rows;
+  const{data,error}=which==='find'
+    ?await sb.rpc('tutor_map_tutors',{p_lat:area?.lat??null,p_lng:area?.lng??null,p_for_child:fc})
+    :await sb.rpc('tutor_map_learners');
+  if(error){console.warn('map pins',error.message);return null;} // migration 008 not run yet: map still shows search results
+  _mapExtra[which]={key,at:Date.now(),rows:data||[]};
+  return data||[];
+}
+function learnerPinSheet(l){
+  document.getElementById('pin-title').textContent='Looking for a tutor';
+  document.getElementById('pin-body').innerHTML=`<div class="card">
+    <div class="tc-top">${avatar(l.first_name,40,16)}<div style="flex:1;min-width:0"><div class="tc-name">${esc(l.first_name)}${l.for_child?' <span class="tag" style="margin-left:4px">For their child</span>':''}</div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--muted)">📍 ${l.distance_km!=null?`${l.distance_km<1?'< 1':l.distance_km} km · `:''}${esc(l.area_label||'')}</div></div></div></div>
+    <div class="form-hint" style="margin:4px 2px 0">${esc(l.first_name)} is open to tutors nearby but hasn't posted a request yet. When they post one that fits your subjects and travel distance, it shows on this map and you can offer to help.</div>`;
+  openOv('pin-sheet');
+}
+async function drawMap(which){
+  const note=document.getElementById(which+'-map-note');
+  let m;
+  try{m=await getMap(which+'-map');}
+  catch(e){note.innerHTML='<span>The map can\'t load on this browser. Tap List to see everyone.</span>';return;}
+  const[mine,extra]=await Promise.all([which==='find'?area:myTutorArea(),mapExtra(which)]);
+  const rows=(which==='find'?findRows:lrRows)||[]; // read after the awaits so a slow earlier call can't draw stale results
+  if(!document.getElementById(which+'-map-wrap').classList.contains('show'))return; // switched back to List meanwhile
+  m.map.resize();
+  m.markers.forEach(x=>x.remove());m.markers=[];
+  const pts=[],add=(el,lat,lng,anchor,onClick)=>{
+    if(onClick)el.onclick=e=>{e.stopPropagation();onClick();};
+    m.markers.push(new maplibregl.Marker({element:el,anchor}).setLngLat([lng,lat]).addTo(m.map));pts.push([lng,lat]);};
+  const pin=(cls,ico,label)=>{const el=document.createElement('div');el.className='map-pin '+cls;el.innerHTML=`<span class="pin-av">${ico}</span>${label}`;return el;};
+  const forChild=which==='find'&&findState.forChild;
+  let notes=[];
+  if(which==='find'){
+    // All live tutors; the ones matching your search are full colour, the rest faded.
+    const match=new Set(rows.map(r=>r.profile_id)),seen=new Set();
+    const list=extra?extra:rows.filter(r=>r.map_lat!=null); // before migration 008: search results only
+    // Live tutors only. yoodle.ca helpers with a Tutoring tag appear once they set up a tutor profile (migration 011).
+    list.forEach(t=>{
+      if(t.map_lat==null||seen.has(t.profile_id)||t.source==='yoodle')return;
+      // For a child: never show anyone without a cleared Vulnerable Sector Check (the database already filters; this is a second guard)
+      if(forChild&&!t.minors_cleared)return;
+      seen.add(t.profile_id);
+      const cls=match.has(t.profile_id)?'':'other';
+      add(pin(cls,esc(((t.name||'?')[0]||'?').toUpperCase()),`${money(t.hourly_rate)}/hr`),+t.map_lat,+t.map_lng,'bottom',()=>openTutor(t.profile_id));
+    });
+    if(extra){const nt=seen.size;notes.push(`${nt} live ${nt===1?'tutor':'tutors'} nearby`);if(nt>[...seen].filter(id=>match.has(id)).length)notes.push('faded = outside your filters');}
+    if(forChild)notes.push('background-checked tutors only');
+  }else{
+    // Open requests (orange) + learners who opted in (blue). One pin per learner: a request wins.
+    const withReq=new Set();let nr=0;
+    rows.forEach((r,i)=>{
+      if(r.map_lat==null)return;withReq.add(r.learner_id);nr++;
+      add(pin('req'+(r.responded?' done':''),subjEmoji(r.subject),esc(r.subject)),+r.map_lat,+r.map_lng,'bottom',()=>{
+        document.getElementById('pin-title').textContent='Learner request';
+        document.getElementById('pin-body').innerHTML=requestCard(r,i);openOv('pin-sheet');});
+    });
+    let nl=0;
+    (extra||[]).forEach(l=>{
+      if(l.map_lat==null||withReq.has(l.learner_id))return;nl++;
+      add(pin('lrn',l.for_child?'👨‍👧':'🙋',esc(l.first_name)),+l.map_lat,+l.map_lng,'bottom',()=>learnerPinSheet(l));
+    });
+    notes.push(`${nr} ${nr===1?'request':'requests'}`);
+    if(extra)notes.push(`${nl} ${nl===1?'learner':'learners'} open to tutors`);
+  }
+  if(mine){const el=document.createElement('div');el.className='map-me';el.title='You';add(el,+mine.lat,+mine.lng,'center');}
+  if(pts.length===1)m.map.jumpTo({center:pts[0],zoom:11});
+  else if(pts.length){const b=new maplibregl.LngLatBounds(pts[0],pts[0]);pts.forEach(p=>b.extend(p));m.map.fitBounds(b,{padding:{top:80,bottom:80,left:50,right:50},maxZoom:13,duration:0});}
+  if(rows.length&&!('map_lat' in rows[0])){note.innerHTML='<span>Map locations aren\'t switched on yet. Tap List to see everyone.</span>';return;} // migration 007 not run
+  note.innerHTML=`<span>📍 ${notes.join(' · ')} · areas are approximate</span>`;
 }
 
 /* ── ADDRESS SEARCH (Nominatim, same as yoodle.ca) ── */
@@ -1030,6 +1376,7 @@ function setArea(p){
   try{localStorage.setItem('yt_area',JSON.stringify(area));}catch(e){}
   closeOv('area-sheet');
   document.getElementById('pr-area').textContent=area.label;
+  if(myPin)sb.rpc('tutor_set_learner_pin',{p_for_child:myPin.for_child,p_area_label:area.label,p_lat:area.lat,p_lng:area.lng}).then(()=>loadMyPin(),()=>{});
   if(document.getElementById('app-find').classList.contains('active'))renderFind();
   else toast('📍 Area set: '+p.label);
 }
@@ -1070,6 +1417,7 @@ async function renderFind(){
   const n=['subject','grade','mode','maxRate','day'].filter(k=>f[k]).length+(f.km!==15?1:0);
   const fc=document.getElementById('filter-count');fc.textContent=n;fc.style.display=n?'inline-flex':'none';
   const list=document.getElementById('find-list'),sub=document.getElementById('find-sub');
+  findRows=null;paintView('find'); // list (spinner / empty states) until results arrive
   if(!area&&f.mode!=='online'){
     sub.textContent='';
     list.innerHTML=emptyState('📍','Where are you?','Set your area to see tutors near you, or pick Online in Filters.')+`<button class="btn-primary" onclick="openAreaSheet()">Set my area</button>`;
@@ -1087,11 +1435,9 @@ async function renderFind(){
   const bits=[f.subject||'All subjects',f.grade,f.mode?modeLabel(f.mode):'',f.mode==='online'?'':`within ${f.km} km`].filter(Boolean);
   sub.textContent=`${rows.length} ${rows.length===1?'tutor':'tutors'} · ${bits.join(' · ')} · best match first`;
   if(f.forChild)sub.textContent+=' · background-checked only';
-  if(!rows.length){
-    list.innerHTML=emptyState('🔍','No tutors match yet',f.forChild?'Only tutors with a cleared background check appear for children. Try fewer filters or a wider distance.':'Try fewer filters or a wider distance.');
-    return;
-  }
-  list.innerHTML=rows.map(tutorCard).join('');
+  list.innerHTML=rows.length?rows.map(tutorCard).join('')
+    :emptyState('🔍','No tutors match yet',f.forChild?'Only tutors with a cleared background check appear for children. Try fewer filters or a wider distance.':'Try fewer filters or a wider distance.');
+  findRows=rows;paintView('find');
 }
 function tutorCard(t){
   const subj=(t.subjects||[]).slice(0,4).map(s=>`<span class="tag">${subjEmoji(s)} ${esc(s)}</span>`).join(' ');
@@ -1102,7 +1448,7 @@ function tutorCard(t){
   const rating=t.review_count?`<span class="stars">★ ${(+t.rating).toFixed(1)}</span> (${t.review_count})`:'New tutor';
   return`<div class="tcard" onclick="openTutor('${t.profile_id}')">
     <div class="tc-top">${avatar(t.name,40,16)}
-      <div style="min-width:0;flex:1"><div class="tc-name">${esc(t.name||'Tutor')}<span class="idv-chip">✓ ID</span>${t.minors_cleared?'<span class="kid-chip">✓ Under-18s</span>':''}</div>
+      <div style="min-width:0;flex:1"><div class="tc-name">${esc(t.name||'Tutor')}${t.id_verified?'<span class="idv-chip">✓ ID</span>':''}${t.minors_cleared?'<span class="kid-chip">✓ Under-18s</span>':''}</div>
       <div class="tc-head">${esc(t.headline||'')}</div></div>
       <div class="tc-rate">${money(t.hourly_rate)}<span style="font-size:12px;color:var(--muted)">/hr</span></div></div>
     ${subj?`<div style="display:flex;flex-wrap:wrap;gap:4px">${subj}</div>`:''}
@@ -1126,7 +1472,7 @@ async function openTutor(id){
         <div style="font-size:14px;font-weight:800;color:${t.review_count?'var(--yellow)':'var(--muted)'};margin-top:2px">${t.review_count?`★ ${(+t.rating).toFixed(1)} · ${t.review_count} ${t.review_count===1?'review':'reviews'}`:'New tutor'}${t.repeat_learners?` <span style="color:var(--muted)">· 🔁 ${t.repeat_learners} repeat</span>`:''}</div>
         <div class="op-mod-links"><button onclick="openReport('${t.profile_id}',viewTutor.name)">Report</button>·<button onclick="openBlock('${t.profile_id}',viewTutor.name)">Block</button></div>
       </div></div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"><span class="idv-chip" style="margin:0">✓ ID verified</span>${t.minors_cleared?'<span class="kid-chip" style="margin:0">✓ Available for students under 18</span>':''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${t.id_verified?'<span class="idv-chip" style="margin:0">✓ ID verified</span>':''}${t.minors_cleared?'<span class="kid-chip" style="margin:0">✓ Available for students under 18</span>':''}</div>
     ${t.headline?`<div style="font-size:16px;font-weight:800;margin-bottom:10px">${esc(t.headline)}</div>`:''}
     <div class="modal-grid" style="margin-top:0"><div class="modal-pill"><div class="modal-pill-l">Rate</div><div class="modal-pill-v" style="color:var(--lime)">${money(t.hourly_rate)}/hr</div></div>
       <div class="modal-pill"><div class="modal-pill-l">Where</div><div class="modal-pill-v" style="font-size:14px">${modeLabel(t.modes)}</div></div></div>
@@ -1497,7 +1843,7 @@ function subscribeRealtime(){
 }
 
 /* ── NOTIFICATIONS ── */
-const NOTIF_EMOJI={booking_request:'📅',booking_confirmed:'✅',booking_declined:'↩️',cancelled:'❌',rescheduled:'🔁',message:'💬',review:'⭐',reminder:'⏰',completed:'📝',verification:'🛡️'};
+const NOTIF_EMOJI={booking_request:'📅',booking_confirmed:'✅',booking_declined:'↩️',cancelled:'❌',rescheduled:'🔁',message:'💬',review:'⭐',reminder:'⏰',completed:'📝',verification:'🛡️',setup:'🚀'};
 async function refreshBadges(){
   if(!me)return;
   const[{count},conv]=await Promise.all([
@@ -1576,18 +1922,18 @@ async function renderProfile(){
   const name=prof?.name||me.user_metadata?.full_name||me.email?.split('@')[0]||'Yoodler';
   let tutorHtml='';
   if(ROLE==='tutor'){
-    const t=ME.tutor||{},live=t.listed&&t.review_status==='approved'&&ME.id_verified&&!t.admin_hidden;
+    const t=ME.tutor||{},live=!!ME.live; // tutor_me().live = tutor_is_live() (010: listing on + complete profile; no ID check or approval)
     const step=(ok,title,sub,btn)=>`<div class="card" style="display:flex;gap:12px;align-items:flex-start"><div style="font-size:20px">${ok===true?'✅':ok==='wait'?'⏳':ok==='bad'?'⚠️':'⬜'}</div><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">${title}</div><div style="font-size:13px;font-weight:700;color:var(--muted);line-height:1.5;margin-top:2px">${sub}</div>${btn||''}</div></div>`;
     const smallBtn=(l,fn,primary)=>`<button onclick="${fn}" style="margin-top:10px;padding:9px 16px;border-radius:100px;border:${primary?'none':'1.5px solid var(--border)'};background:${primary?'var(--btn-a)':'var(--surface)'};color:${primary?'#fff':'var(--text)'};font:800 13.5px 'Nunito',sans-serif;cursor:pointer">${l}</button>`;
     const profileDone=(t.subjects||[]).length&&(t.grade_levels||[]).length&&t.hourly_rate!=null&&t.bio;
     const rs=t.review_status;
     tutorHtml=`<div class="act-h">Your tutor listing</div>
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;border-color:${live?'rgba(46,125,82,.35)':'var(--border)'}">
-        <div><div style="font-size:15px;font-weight:800">${live?'🟢 Live in search':'⚪ Not in search yet'}</div><div style="font-size:13px;font-weight:700;color:var(--muted)">${live?'Learners near you can find and book you.':t.admin_hidden?'Hidden by Yoodle. Contact support.':'Finish the steps below.'}</div></div>
+        <div><div style="font-size:15px;font-weight:800">${live?'🟢 Live in search':'⚪ Not in search yet'}</div><div style="font-size:13px;font-weight:700;color:var(--muted)">${live?'Learners near you can find and book you.':t.admin_hidden?'Hidden by Yoodle. Contact support.':'Complete your profile and switch your listing on.'}</div></div>
         <label class="sw" title="Show my listing"><input type="checkbox" ${t.listed?'checked':''} onchange="setListed(this.checked)"><span></span></label></div>
       ${step(profileDone?true:false,'Tutor profile',profileDone?`${(t.subjects||[]).length} subjects · ${money(t.hourly_rate)}/hr · ${modeLabel(t.modes)}`:'Add subjects, grades, rate, area and a bio.',smallBtn(profileDone?'Edit profile':'Set up profile',"nav('tutoredit')",!profileDone))}
-      ${step(ME.id_verified?true:false,'ID verification (required)',ME.id_verified?'Verified by Stripe. You have the ✓ ID badge.':'Every tutor verifies their ID with Stripe ($2.99 + tax, one time). It\'s done on yoodle.ca with the same account, then shows here.',ME.id_verified?'':smallBtn('Verify on yoodle.ca ↗',"window.open('https://yoodle.ca/','_blank','noopener')",true)+smallBtn('I\'ve finished, refresh','renderProfile()'))}
-      ${step(rs==='approved'?true:rs==='pending'?'wait':rs==='rejected'?'bad':false,'Profile review',rs==='approved'?'Approved by the Yoodle team.':rs==='pending'?'We\'re reviewing your profile, usually within 1–2 days.':rs==='rejected'?'Changes needed: '+esc(t.review_note||'see email'):'Submit your profile so our team can check it.',(rs==='draft'||rs==='rejected')?smallBtn('Submit for review','submitForReview()',true):'')}
+      ${step(ME.id_verified?true:false,'ID verification (optional)',ME.id_verified?'Verified by Stripe. You have the ✓ ID badge.':'Not needed to go live. Verifying with Stripe ($2.99 + tax, one time) adds a ✓ ID badge to your listing. It\'s done on yoodle.ca with the same account, then shows here.',ME.id_verified?'':smallBtn('Verify on yoodle.ca ↗',"window.open('https://yoodle.ca/','_blank','noopener')",true)+smallBtn('I\'ve finished, refresh','renderProfile()'))}
+      ${rs==='rejected'?step('bad','Changes needed','The Yoodle team took your listing down: '+esc(t.review_note||'see email')+'. Edit your profile, then resubmit.',smallBtn('Resubmit','submitForReview()',true)):''}
       ${step(t.minors_status==='cleared'?true:t.minors_status==='submitted'?'wait':t.minors_status==='rejected'?'bad':false,'Teach students under 18 (optional)',
         t.minors_status==='cleared'?`Cleared${t.minors_expires_at?' until '+new Date(t.minors_expires_at+'T12:00').toLocaleDateString('en-CA',{month:'short',year:'numeric'}):''}. You show "Available for students under 18".`
         :t.minors_status==='submitted'?'We\'re reviewing your Vulnerable Sector Check.'
@@ -1606,6 +1952,7 @@ async function renderProfile(){
     <button class="btn-primary" style="margin-top:0" onclick="saveName()">Save name</button>
     <div class="form-hint">Your name and account are shared with yoodle.ca.</div>
     ${ROLE==='learner'?`<div class="act-h">Your area</div><button class="row-btn" onclick="openAreaSheet()"><span>📍 ${esc(area?.label||'Not set')}</span><span style="color:var(--muted)">Change ›</span></button>
+    <div id="my-pin"></div>
     <div class="act-h">Your tutor requests</div><div id="my-requests">${spin()}</div>`:''}
     <div class="act-h">Safety</div>
     <button class="row-btn" onclick="openSafety()"><span>🛡️ Session safety guidelines</span><span style="color:var(--muted)">›</span></button>
@@ -1616,7 +1963,44 @@ async function renderProfile(){
       <a href="https://yoodle.ca/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy ›</a>
       <a href="https://yoodle.ca/" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Manage or delete your Yoodle account ›</a></div></div>
     <button class="btn-danger" onclick="signOut()">Sign out</button>`;
-  if(ROLE==='learner')loadMyRequests();
+  if(ROLE==='learner'){loadMyRequests();loadMyPin();}
+}
+
+/* ── LEARNER MAP PIN: opt-in "Let tutors near me see I'm looking" (off by default) ──
+   On: the learner's area (rounded to ~1 km by the database, blurred again on the map) is saved so live
+   tutors see a pin with their first name and "for me / for my child". Off: the row is deleted. */
+var myPin; // undefined = not loaded, null = off, object = on
+async function loadMyPin(){ // also run on sign-in, so changing your area moves the pin from any screen
+  const{data,error}=await sb.from('tutor_learner_pins').select('for_child,area_label,expires_at').eq('profile_id',me.id).maybeSingle();
+  if(error){const el=document.getElementById('my-pin');if(el)el.innerHTML='';return;} // migration 008 not run yet
+  myPin=data&&new Date(data.expires_at)>new Date()?data:null;
+  renderMyPin();
+}
+function renderMyPin(){
+  const el=document.getElementById('my-pin');if(!el)return;
+  const on=!!myPin;
+  el.innerHTML=`<div class="card" style="margin-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div><div style="font-size:15px;font-weight:800">Let tutors near me see I'm looking</div>
+      <div style="font-size:13px;font-weight:700;color:var(--muted);line-height:1.5;margin-top:2px">${on
+        ?`Live tutors see your first name on their map near ${esc(myPin.area_label)}. The spot is blurred by about 1 km. On until ${new Date(myPin.expires_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}.`
+        :'Off. Tutors only see you if you post a request. Switch on to show a blurred pin on their map.'}</div></div>
+      <label class="sw" title="Show me on the tutor map"><input type="checkbox" ${on?'checked':''} onchange="setMyPin(this.checked)"><span></span></label></div>
+    ${on?`<div class="seg" style="margin-top:12px"><button class="${myPin.for_child?'':'on'}" onclick="setMyPin(true,false)">For me</button><button class="${myPin.for_child?'on':''}" onclick="setMyPin(true,true)">For my child</button></div>
+    <div class="form-hint">Tutors can't message you from the map. Nothing about your child is shown, and pins for a child only reach tutors cleared for under-18s.</div>`:''}
+  </div>`;
+}
+async function setMyPin(on,forChild){
+  if(!on){
+    if(!await rpc('tutor_clear_learner_pin'))return renderMyPin();
+    myPin=null;renderMyPin();return toast('Your pin is off');
+  }
+  if(!area){renderMyPin();toast('📍 Set your area first');return openAreaSheet();}
+  const fc=forChild??myPin?.for_child??findState.forChild;
+  if(!await rpc('tutor_set_learner_pin',{p_for_child:fc,p_area_label:area.label,p_lat:area.lat,p_lng:area.lng}))return renderMyPin();
+  const wasOn=!!myPin;
+  await loadMyPin();
+  if(!wasOn)toast('📍 Tutors near you can now see you\'re looking');
 }
 async function saveName(){
   const name=document.getElementById('p-name').value.trim();if(!name)return toast('Name can\'t be empty');
@@ -1685,7 +2069,7 @@ async function saveTutorProfile(){
   if(error)return toast('❌ '+error.message);
   toast('✅ Profile saved');
   await loadMe();
-  if(ME.tutor?.review_status==='draft'||ME.tutor?.review_status==='rejected'){const r=await rpc('tutor_submit_profile');if(r)toast('📨 Saved and sent for review');}
+  if(ME.tutor?.review_status==='draft')await rpc('tutor_submit_profile'); // lists new profiles in the admin queue; going live doesn't wait for it
   nav('profile');
 }
 
@@ -1764,15 +2148,16 @@ async function closeRequest(id){
 }
 
 // Tutor: browse and reply
-let lrMine=true,lrRows=[],replyReq=null;
+let lrMine=true,lrRows=null,replyReq=null; // lrRows null = not loaded
 function setLearnerFilter(mine){lrMine=mine;renderLearners();}
 async function renderLearners(){
   document.getElementById('lr-mine').classList.toggle('on',lrMine);
   document.getElementById('lr-all').classList.toggle('on',!lrMine);
   const el=document.getElementById('learners-list');
-  const t=ME.tutor||{},live=t.listed&&t.review_status==='approved'&&ME.id_verified&&!t.admin_hidden;
+  lrRows=null;document.getElementById('learners-sub').textContent='';paintView('learners');
+  const t=ME.tutor||{},live=!!ME.live; // tutor_me().live = tutor_is_live() (010: listing on + complete profile; no ID check or approval)
   if(!live){
-    el.innerHTML=emptyState('🔒','Go live to see learners','Once your profile is approved, your ID is verified and your listing is switched on, learners looking for a tutor show up here.')
+    el.innerHTML=emptyState('🔒','Go live to see learners','Once your tutor profile is complete and your listing is switched on, learners looking for a tutor show up here.')
       +`<button class="btn-primary" onclick="nav('profile')">See what's left</button>`;
     return;
   }
@@ -1780,8 +2165,10 @@ async function renderLearners(){
   const{data,error}=await sb.rpc('tutor_browse_requests',{p_only_my_subjects:lrMine});
   if(error){el.innerHTML=emptyState('⚠️','Couldn\'t load requests',esc(error.message));return;}
   lrRows=data||[];
+  document.getElementById('learners-sub').textContent=`${lrRows.length} open ${lrRows.length===1?'request':'requests'} · newest first`;
   el.innerHTML=lrRows.length?lrRows.map(requestCard).join('')
     :emptyState('🔭','No requests right now',lrMine?'Nothing matches your subjects and grades yet. Try "All subjects", or check back soon.':'Check back soon. New requests show up here.');
+  paintView('learners');
 }
 function requestCard(r,i){
   const where=r.mode==='online'?'💻 Online'
@@ -1801,7 +2188,7 @@ function requestCard(r,i){
   </div>`;
 }
 function openReply(i){
-  replyReq=lrRows[i];if(!replyReq)return;
+  replyReq=(lrRows||[])[i];if(!replyReq)return;
   const r=replyReq;
   document.getElementById('rp-name').textContent=r.first_name;
   document.getElementById('rp-summary').innerHTML=`<div class="box-lbl">Their request</div><div class="box-txt">${subjEmoji(r.subject)} ${esc(r.subject)} · ${esc(r.grade_level)}${r.for_child?' · for their child':''}</div>${r.note?`<div class="form-hint">“${esc(r.note)}”</div>`:''}`;
@@ -1818,7 +2205,7 @@ async function sendRequestReply(){
   if(!res)return;
   closeOv('reply-modal');
   r.responded=true;r.conversation_id=res.conversation_id;
-  document.getElementById('learners-list').innerHTML=lrRows.map(requestCard).join('');
+  document.getElementById('learners-list').innerHTML=(lrRows||[]).map(requestCard).join('');
   toast('✅ Sent! The conversation is in Messages');
   openChat(res.conversation_id,r.learner_id,r.first_name,true);
 }
