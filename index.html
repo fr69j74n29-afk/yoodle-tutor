@@ -993,12 +993,22 @@ try{Object.assign(findState,JSON.parse(localStorage.getItem('yt_find')||'{}'));}
 
 /* ── START-UP ── */
 window.addEventListener('DOMContentLoaded',()=>{
+  // #th=<token hash> (17 Nov 2026): one-time sign-in from yoodle.ca (edge function tutor-handoff).
+  // Read and removed from the address bar before the client starts, so it's never bookmarked, shared or reused.
+  let _handoff=null;
+  try{const h=new URLSearchParams(location.hash.slice(1));_handoff=h.get('th');
+    if(_handoff)history.replaceState(null,'',location.pathname+location.search);}catch(e){}
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
   // ?start=tutor (from yoodle.ca: profile "Become a Tutor", tutoring invite): pick "tutor" in onboarding,
   // and open the tutor sign-in sheet when signed out.
   let _startTutor=false;
   try{_startTutor=new URLSearchParams(location.search).get('start')==='tutor';if(_startTutor)localStorage.setItem('yt_intent','tutor');}catch(e){}
-  sb.auth.getSession().then(({data:{session}})=>{if(session)startApp(session);else if(_startTutor)openAuthSheet('tutor');});
+  // With a handoff token, sign in as the yoodle.ca account first (replaces any other account signed in here).
+  // If it fails (expired / already used), fall back to the normal flow.
+  const _signIn=_handoff
+    ?sb.auth.verifyOtp({token_hash:_handoff,type:'magiclink'}).then(({error})=>{if(error)console.warn('handoff sign-in',error.message);}).catch(()=>{})
+    :Promise.resolve();
+  _signIn.then(()=>sb.auth.getSession()).then(({data:{session}})=>{if(session)startApp(session);else if(_startTutor)openAuthSheet('tutor');});
   sb.auth.onAuthStateChange((_e,session)=>{if(session)startApp(session);else{me=null;_startedFor=null;showAuth();}});
   fillSelects();
 });
