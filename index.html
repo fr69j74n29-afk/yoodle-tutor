@@ -179,6 +179,12 @@ body:not(.theme-sage-dark) .nav-i.active{color:#2E4A38}
 .maplibregl-marker:hover{z-index:5}
 .map-me{width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.2),0 1px 4px rgba(0,0,0,.3)}
 
+/* LEARNER / TUTOR SIDE TOGGLE (Profile) */
+.side-toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:100px;background:var(--surface2);border:1.5px solid var(--border)}
+.side-opt{padding:11px 10px;border-radius:100px;border:none;background:transparent;color:var(--muted);font:800 14.5px 'Nunito',sans-serif;cursor:pointer}
+.side-opt.on{background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:#fff}
+.side-opt:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+
 /* FORMS */
 .form-g{margin-bottom:16px}
 .form-lbl{display:block;font-size:13.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
@@ -838,12 +844,12 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
 <div class="gate" id="onboard-gate">
   <div class="modal-sheet">
     <div class="modal-title" style="margin-bottom:6px">Welcome to Yoodle Tutors</div>
-    <div class="section-sub">How will you use it? You can't switch later without contacting support.</div>
+    <div class="section-sub">How will you use it first? You can add the other side later from your Profile.</div>
     <button class="ga-choice" id="ob-learner" style="border:1.5px solid var(--border);margin-bottom:10px" onclick="obPick('learner')">
       <div class="ga-choice-ico" style="background:#F97316">📚</div><div><div class="ga-choice-t">I'm looking for a tutor</div><div class="ga-choice-d">For myself, or for my child</div></div>
     </button>
     <button class="ga-choice" id="ob-tutor" style="border:1.5px solid var(--border)" onclick="obPick('tutor')">
-      <div class="ga-choice-ico" style="background:#8DE0A8">🎓</div><div><div class="ga-choice-t">I want to tutor</div><div class="ga-choice-d">ID check required · background check to teach under-18s</div></div>
+      <div class="ga-choice-ico" style="background:#8DE0A8">🎓</div><div><div class="ga-choice-t">I want to tutor</div><div class="ga-choice-d">Set up a profile and go live · background check to teach under-18s</div></div>
     </button>
     <label class="check-row"><input type="checkbox" id="ob-adult" onchange="obCheck()"> <span>I'm 18 or older. Accounts are for adults only: parents book for their children; children don't get accounts.</span></label>
     <label class="check-row"><input type="checkbox" id="ob-terms" onchange="obCheck()"> <span>I agree to the <a href="https://yoodle.ca/terms" target="_blank" rel="noopener" style="color:var(--purple)">Terms of Use</a> and <a href="javascript:void 0" onclick="event.preventDefault();openSafety()" style="color:var(--purple)">session safety guidelines</a>.</span></label>
@@ -935,7 +941,7 @@ function tapConfirm(btn,prompt,action){
 function tapConfirmReset(btn){if(!btn||!btn.dataset.armedAt)return;clearTimeout(btn._tcTimer);btn.innerHTML=btn.dataset.tcLabel;delete btn.dataset.armedAt;btn.classList.remove('tc-armed');}
 document.addEventListener('click',()=>document.querySelectorAll('.card-menu-drop.open').forEach(m=>m.classList.remove('open')));
 // RPC that returns {ok,reason} — shows a plain-words error and returns null on failure
-const REASONS={not_learner:'Only learner accounts can book.',safety_ack:'Please confirm the safety guidelines.',tutor_unavailable:'This tutor isn\'t taking bookings right now.',blocked:'You can\'t book this person.',not_cleared_for_minors:'This tutor isn\'t cleared to teach under-18s.',subject_or_grade:'Pick a subject and grade this tutor teaches.',mode:'This tutor doesn\'t offer that format.',start_time:'Pick a start time at least 2 hours from now.',weeks:'Weekly bookings are 2–12 weeks.',already_requested:'You already have a pending request with this tutor.',not_found:'Not found. It may have changed. Pull to refresh.',not_pending:'This request was already answered.',start_passed:'The requested start time has passed. Ask the learner to send a new request.',closed:'This booking is already closed.',not_cancellable:'This session can\'t be cancelled any more.',not_scheduled:'This session isn\'t scheduled any more.',inside_window:`Less than ${CANCEL_HOURS} hours to go. You can cancel, but not reschedule.`,not_started:'You can complete a session once it has started.',rating:'Pick 1–5 stars.',no_completed_session:'You can review after a completed session.',incomplete:'Add a bio, subjects, grades and rate first.',area_needed:'Set your area so in-person tutors can find you, or choose Online.',note_contact:'Please take phone numbers, emails and social handles out of your note. Tutors will message you on Yoodle.',too_many_requests:'You can have 3 open requests at a time. Close one from your Profile first.',not_live:'Your listing needs to be live (approved and ID-verified) to reply to learners.',message_length:'Write a message (up to 1000 characters).',request_closed:'This request has closed.',request_not_fit:'This request doesn\'t match your format, travel distance or under-18 clearance.',already_responded:'You\'ve already replied to this request.',reply_limit:'You\'ve replied to 20 requests today. Try again tomorrow.',no_profile:'Save your tutor profile first.',bad_path:'Upload failed. Try again.',no_profile_or_cleared:'Save your tutor profile first.',suspended:'Your account is suspended.',not_signed_in:'Please sign in again.'};
+const REASONS={not_learner:'Switch on your learner side (Profile) to do this.',self_booking:'You can\'t book yourself.',side:'Unknown side.',not_member:'Finish setting up your account first.',safety_ack:'Please confirm the safety guidelines.',tutor_unavailable:'This tutor isn\'t taking bookings right now.',blocked:'You can\'t book this person.',not_cleared_for_minors:'This tutor isn\'t cleared to teach under-18s.',subject_or_grade:'Pick a subject and grade this tutor teaches.',mode:'This tutor doesn\'t offer that format.',start_time:'Pick a start time at least 2 hours from now.',weeks:'Weekly bookings are 2–12 weeks.',already_requested:'You already have a pending request with this tutor.',not_found:'Not found. It may have changed. Pull to refresh.',not_pending:'This request was already answered.',start_passed:'The requested start time has passed. Ask the learner to send a new request.',closed:'This booking is already closed.',not_cancellable:'This session can\'t be cancelled any more.',not_scheduled:'This session isn\'t scheduled any more.',inside_window:`Less than ${CANCEL_HOURS} hours to go. You can cancel, but not reschedule.`,not_started:'You can complete a session once it has started.',rating:'Pick 1–5 stars.',no_completed_session:'You can review after a completed session.',incomplete:'Add a bio, subjects, grades and rate first.',area_needed:'Set your area so in-person tutors can find you, or choose Online.',note_contact:'Please take phone numbers, emails and social handles out of your note. Tutors will message you on Yoodle.',too_many_requests:'You can have 3 open requests at a time. Close one from your Profile first.',not_live:'Your listing needs to be live (approved and ID-verified) to reply to learners.',message_length:'Write a message (up to 1000 characters).',request_closed:'This request has closed.',request_not_fit:'This request doesn\'t match your format, travel distance or under-18 clearance.',already_responded:'You\'ve already replied to this request.',reply_limit:'You\'ve replied to 20 requests today. Try again tomorrow.',no_profile:'Save your tutor profile first.',bad_path:'Upload failed. Try again.',no_profile_or_cleared:'Save your tutor profile first.',suspended:'Your account is suspended.',not_signed_in:'Please sign in again.'};
 async function rpc(name,args){
   const{data,error}=await sb.rpc(name,args||{});
   if(error){const m=(error.message||'').match(/\b(suspended|not_signed_in|tutor_unavailable|blocked)\b/);toast('❌ '+(m?REASONS[m[1]]:error.message));return null;}
@@ -944,7 +950,7 @@ async function rpc(name,args){
 }
 
 /* ── STATE ── */
-let sb,me=null,ME=null,ROLE=null; // ME = tutor_me(): {member,tutor,id_verified,suspended}
+let sb,me=null,ME=null,ROLE=null,HAS_TUTOR=false,HAS_LEARNER=false; // ME = tutor_me(): {member,tutor,id_verified,suspended}; ROLE = side being shown
 let blockedIds=new Set();
 let findState={forChild:false,subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''};
 let area=null; // {lat,lng,label} — this device only
@@ -995,12 +1001,37 @@ async function loadMe(){
   const{data,error}=await sb.rpc('tutor_me');
   if(error){document.getElementById('view-main').innerHTML=emptyState('🔌','Yoodle Tutors isn\'t set up yet','The database migration hasn\'t been run on this Supabase project. ('+esc(error.message)+')');ME=null;return;}
   ME=data;ROLE=ME.member?.role||null;
+  // 012: one account can be both. HAS_TUTOR = has a tutor profile, HAS_LEARNER = learner side switched on.
+  // ROLE = the side the app is showing (Profile toggle). Older rows: role alone says which side they have.
+  HAS_TUTOR=!!ME.tutor||ROLE==='tutor';
+  HAS_LEARNER=!!ME.member?.learner_at||ROLE==='learner';
 }
-function enterApp(){
+function applySide(){
   document.getElementById('ni-find').style.display=ROLE==='learner'?'flex':'none';
   document.getElementById('ni-learners').style.display=ROLE==='tutor'?'flex':'none';
-  loadBlocked();subscribeRealtime();refreshBadges();
+  document.getElementById('sess-dot').style.display='none';
   if(ROLE==='learner')loadMyPin();
+}
+/* Switch between the learner and tutor side (Profile toggle). Turns the side on first if it isn't yet. */
+async function useSide(side){
+  if(side===ROLE)return;
+  const adding=side==='tutor'?!HAS_TUTOR:!HAS_LEARNER;
+  const res=await rpc('tutor_use_side',{p_side:side});
+  if(!res)return renderProfile();
+  await loadMe();applySide();refreshBadges();
+  if(adding&&side==='tutor'){toast('🎓 Tutor side added. Set up your profile to go live.');nav('tutoredit');}
+  else if(adding&&side==='learner'){toast('📚 Learner side added');nav('find');if(!area)openAreaSheet();}
+  else{toast(side==='tutor'?'🎓 Tutor view':'📚 Learner view');nav(side==='learner'?'find':'sessions');}
+}
+// A notification about a booking/session on the other side switches the view to that side first.
+async function sideFor(row){
+  if(!row)return;const side=row.tutor_id===me.id?'tutor':'learner';
+  if(side===ROLE)return;
+  if(await rpc('tutor_use_side',{p_side:side})){await loadMe();applySide();}
+}
+function enterApp(){
+  applySide();
+  loadBlocked();subscribeRealtime();refreshBadges();
   nav(ROLE==='learner'?'find':'sessions');
   // Reminders also fire when the app is open: check every 5 min (server creates them; this just refreshes the bell)
   setInterval(refreshBadges,5*60*1000);
@@ -1527,15 +1558,16 @@ async function submitBooking(){
   sessTab='requests';nav('sessions');
 }
 
-/* ══ SESSIONS ══ */
+/* ══ SESSIONS ══ (only the side being shown: as tutor or as learner) */
+function sideCol(){return ROLE==='tutor'?'tutor_id':'learner_id';}
 let sessTab='upcoming',SESS=[],BOOK={},LABELS={},calMonth=null,calSel=null;
 function setSessTab(t){sessTab=t;renderSessions();}
 async function loadSessions(){
   document.getElementById('sess-body').innerHTML=spin();
   const sel='*,tutor:profiles!tutor_bookings_tutor_id_fkey(name),learner:profiles!tutor_bookings_learner_id_fkey(name)';
   const[bRes,sRes,lRes]=await Promise.all([
-    sb.from('tutor_bookings').select(sel).or(`tutor_id.eq.${me.id},learner_id.eq.${me.id}`).order('created_at',{ascending:false}).limit(300),
-    sb.from('tutor_sessions').select('*').or(`tutor_id.eq.${me.id},learner_id.eq.${me.id}`).order('start_at').limit(1000),
+    sb.from('tutor_bookings').select(sel).eq(sideCol(),me.id).order('created_at',{ascending:false}).limit(300),
+    sb.from('tutor_sessions').select('*').eq(sideCol(),me.id).order('start_at').limit(1000),
     ROLE==='learner'?sb.from('tutor_booking_labels').select('booking_id,label'):Promise.resolve({data:[]})
   ]);
   if(bRes.error||sRes.error){document.getElementById('sess-body').innerHTML=emptyState('😕','Couldn\'t load sessions',esc((bRes.error||sRes.error).message));return;}
@@ -1734,10 +1766,13 @@ async function loadConversations(){
   const el=document.getElementById('conv-list');el.innerHTML=spin();
   const{data,error}=await sb.rpc('tutor_my_conversations');
   if(error){el.innerHTML=emptyState('😕','Couldn\'t load messages',esc(error.message));return;}
-  const rows=(data||[]).filter(c=>!blockedIds.has(c.other_id));
-  document.getElementById('msg-dot').style.display=rows.some(c=>c.unread)?'block':'none';
-  if(!rows.length){el.innerHTML=emptyState('💬','No messages yet',ROLE==='learner'?'Message a tutor from their profile to ask a question before booking.':'Learners can message you from your profile.');return;}
-  el.innerHTML=rows.map(c=>`<div class="conv-row ${c.unread?'unread':''}" onclick="openChat('${c.conversation_id}','${c.other_id}','${jsq(c.other_name)}',${c.i_am_tutor})">
+  const all=(data||[]).filter(c=>!blockedIds.has(c.other_id));
+  document.getElementById('msg-dot').style.display=all.some(c=>c.unread)?'block':'none';
+  const mine=c=>!!c.i_am_tutor===(ROLE==='tutor'),rows=all.filter(mine),otherUnread=all.filter(c=>!mine(c)&&c.unread).length;
+  const other=ROLE==='tutor'?'learner':'tutor';
+  const nudge=otherUnread?`<button class="row-btn" style="margin-bottom:12px" onclick="useSide('${other}')"><span>💬 ${otherUnread} unread on your ${other} side</span><span style="color:var(--purple)">Switch ›</span></button>`:'';
+  if(!rows.length){el.innerHTML=nudge+emptyState('💬','No messages yet',ROLE==='learner'?'Message a tutor from their profile to ask a question before booking.':'Learners can message you from your profile.');return;}
+  el.innerHTML=nudge+rows.map(c=>`<div class="conv-row ${c.unread?'unread':''}" onclick="openChat('${c.conversation_id}','${c.other_id}','${jsq(c.other_name)}',${c.i_am_tutor})">
     ${avatar(c.other_name,36,14)}
     <div class="conv-body"><div class="conv-top"><span class="conv-name">${esc(c.other_name)} <span style="font-size:11.5px;color:var(--muted);font-weight:700">${c.i_am_tutor?'Learner':'Tutor'}</span></span><span class="conv-time">${c.last_at?timeAgo(c.last_at):''}</span></div>
     <div class="conv-preview">${c.last_kind==='system'?'📌 ':''}${esc((c.last_body||'').slice(0,80))}</div></div></div>`).join('');
@@ -1837,8 +1872,8 @@ async function openNotif(id,link){
   const[kind,ref]=link.split(':');
   if(kind==='chat'){const{data:c}=await sb.from('tutor_conversations').select('id,tutor_id,learner_id,tutor:profiles!tutor_conversations_tutor_id_fkey(name),learner:profiles!tutor_conversations_learner_id_fkey(name)').eq('id',ref).maybeSingle();
     if(c){const iT=c.tutor_id===me.id;openChat(c.id,iT?c.learner_id:c.tutor_id,(iT?c.learner?.name:c.tutor?.name)||'Yoodler',iT);}}
-  else if(kind==='session'){nav('sessions');await loadSessions();openSession(ref);}
-  else if(kind==='booking'){nav('sessions');await loadSessions();const b=BOOK[ref];if(b&&b.status==='requested')openBooking2(ref);else{sessTab='upcoming';renderSessions();}}
+  else if(kind==='session'){const{data:x}=await sb.from('tutor_sessions').select('tutor_id').eq('id',ref).maybeSingle();await sideFor(x);nav('sessions');await loadSessions();openSession(ref);}
+  else if(kind==='booking'){const{data:x}=await sb.from('tutor_bookings').select('tutor_id').eq('id',ref).maybeSingle();await sideFor(x);nav('sessions');await loadSessions();const b=BOOK[ref];if(b&&b.status==='requested')openBooking2(ref);else{sessTab='upcoming';renderSessions();}}
   else if(kind==='profile'||kind==='reviews')nav('profile');
 }
 async function markAllRead(){await sb.from('tutor_notifications').update({read_at:new Date().toISOString()}).eq('profile_id',me.id).is('read_at',null);openNotifications();refreshBadges();}
@@ -1910,12 +1945,20 @@ async function renderProfile(){
         :(t.minors_status==='rejected'?'Not accepted: '+esc(t.minors_note||'')+'. ':'')+'Upload a Vulnerable Sector Check from your local police service (issued in the last 6 months). Only our safety team can see it.',
         t.minors_status==='cleared'||t.minors_status==='submitted'?'':`<label style="display:inline-block">${smallBtn('Upload check (PDF or photo)',"document.getElementById('vsc-file').click()",true)}</label><input type="file" id="vsc-file" accept="application/pdf,image/jpeg,image/png,image/heic" style="display:none" onchange="uploadVsc(this.files[0])">`)}`;
   }
+  const sideBtn=(side,label)=>`<button class="side-opt${ROLE===side?' on':''}" onclick="useSide('${side}')" aria-pressed="${ROLE===side}">${label}</button>`;
+  const sideHtml=HAS_TUTOR&&HAS_LEARNER
+    ?`<div class="act-h" style="margin-top:4px">You're viewing as</div><div class="side-toggle" role="group" aria-label="Learner or tutor view">${sideBtn('learner','📚 Learner')}${sideBtn('tutor','🎓 Tutor')}</div>
+      <div class="form-hint" style="margin-top:6px">One account, two sides. Your sessions and messages are kept separate for each.</div>`
+    :HAS_TUTOR
+    ?`<button class="row-btn" style="margin-top:4px" onclick="useSide('learner')"><span>📚 Need a tutor yourself? Add a learner side</span><span style="color:var(--purple)">Add ›</span></button>`
+    :`<button class="row-btn" style="margin-top:4px" onclick="useSide('tutor')"><span>🎓 Want to tutor? Set up a tutor profile</span><span style="color:var(--purple)">Add ›</span></button>`;
   const blocked=(blk||[]).length?blk.map(b=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--border)"><span style="font-weight:800">${esc(b.profiles?.name||'Yoodler')}</span><button onclick="unblock('${b.blocked_id}')" style="padding:7px 14px;border-radius:100px;border:1.5px solid var(--border);background:transparent;color:var(--text);font:800 13.5px 'Nunito',sans-serif;cursor:pointer">Unblock</button></div>`).join(''):'<div style="font-size:14px;color:var(--muted);font-weight:600">You haven\'t blocked anyone.</div>';
   el.innerHTML=`
     <div style="display:flex;align-items:center;gap:16px;padding:8px 0 16px">${avatar(name,64,26)}
       <div style="min-width:0;flex:1"><div style="font-size:22px;font-weight:800">${esc(name)}</div>
       <div style="font-size:13.5px;color:var(--muted);font-weight:700">${esc(me.email||'')}</div>
       <div style="margin-top:4px"><span class="tag">${ROLE==='tutor'?'🎓 Tutor':'📚 Learner'}</span>${ME.id_verified?'<span class="idv-chip">✓ ID verified</span>':''}${ROLE==='tutor'&&ME.tutor?.minors_status==='cleared'?'<span class="kid-chip">✓ Under-18s</span>':''}</div></div></div>
+    ${sideHtml}
     ${tutorHtml}
     <div class="act-h">Your details</div>
     <div class="form-g"><label class="form-lbl">Display name</label><input class="form-inp" id="p-name" maxlength="60" value="${esc(name)}"></div>
