@@ -385,6 +385,8 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
 </style>
 </head>
 <body>
+<script>/* Staging preview (tutor.yoodle.ca/staging/): label it so testers know. It uses the real database. */
+if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+document.title;document.addEventListener('DOMContentLoaded',()=>{const t=document.createElement('div');t.textContent='STAGING';t.title='Test version: uses real accounts and data';t.style.cssText="position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);left:50%;transform:translateX(-50%);z-index:5000;padding:2px 10px;border-radius:100px;background:#F59E0B;color:#1a1a1a;font:900 10.5px 'Nunito',sans-serif;letter-spacing:1px;pointer-events:none";document.body.appendChild(t);});}</script>
 
 <!-- ══ SIGNED OUT ══ -->
 <div id="view-auth">
@@ -1051,9 +1053,10 @@ function openAuthSheet(mode){
 }
 function closeAuthSheet(){closeOv('ga-dim');closeOv('ga-sheet');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuthSheet();});
-// Trailing slash so the URL matches the "<origin>/**" entries in Supabase's redirect allow list;
+// Return to the folder the app is running from (/ live, /staging/ for the preview), with a trailing slash
+// so the URL matches the "<origin>/**" entries in Supabase's redirect allow list;
 // an unlisted URL makes Supabase fall back to the Site URL (yoodle.ca).
-const AUTH_RETURN=window.location.origin+'/';
+const AUTH_RETURN=window.location.origin+window.location.pathname.replace(/[^/]*$/,'');
 async function signIn(provider){await sb.auth.signInWithOAuth({provider,options:{redirectTo:AUTH_RETURN}});}
 async function sendEmailCode(){
   const email=document.getElementById('magic-email').value.trim();
