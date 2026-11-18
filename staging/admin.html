@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!-- Yoodle Tutors admin — tutor approvals, background checks, reports, flagged messages, suspensions.
+     Access: emails in public.admin_users (same list as yoodle.ca/admin). All writes go through tutor_admin_* RPCs,
+     which re-check admin rights in the database; suspensions use yoodle's admin_suspend_user(). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Send http:// visitors to https:// before anything loads. Supabase only returns sign-ins to https://tutor.yoodle.ca/**; an http origin would fall back to yoodle.ca. -->
+<script>if(location.protocol==='http:'&&location.hostname==='tutor.yoodle.ca')location.replace('https://'+location.host+location.pathname+location.search+location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Yoodle Tutors Admin</title>
+<link rel="icon" href="https://yoodle.ca/favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--purple:#5C8A6A;--lime:#2E7D52;--bg:#F5F4EF;--surface:#FFF;--surface2:#EFF0EA;--border:#D4D6CD;--text:#1E2620;--muted:#7A8A7C;--text2:#4A5A4E;
+  --btn-a:#5C8A6A;--btn-b:#3D6B50;--danger:#DC5046;--idv:#2563EB;--kid:#0E7490;--radius:16px;--radius-sm:12px}
+@media (prefers-color-scheme:dark){:root{--purple:#4CC38A;--lime:#8DE0A8;--bg:#050706;--surface:#0D120F;--surface2:#141A16;--border:#232C25;--text:#F0EFEA;--muted:#93A596;--text2:#C9CFC9;--btn-a:#178A52;--btn-b:#0F6B3C;--idv:#60A5FA;--kid:#5EC8DD}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 0;position:sticky;top:0;z-index:10}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wordmark{font-family:'Fredoka One',cursive;font-size:26px}
+.ly{color:#9078C0}.lo1{color:#5E9E2E}.lo2{color:#7577D6}.ld{color:#1F8E9E}.ll{color:#D9600A}.le{color:#A07E14}
+.wm-tag{font-family:'Fredoka One',cursive;color:var(--muted);font-size:.5em;margin-left:5px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 14px}
+.tabs button{padding:9px 14px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font:800 14px 'Nunito',sans-serif;cursor:pointer}
+.tabs button.on{border-color:var(--purple);color:var(--purple);background:rgba(92,138,106,.10)}
+.tabs b{margin-left:4px;color:var(--danger)}
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px}
+.row{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.h{font-size:16px;font-weight:800}
+.m{font-size:13px;color:var(--muted);font-weight:700;margin-top:2px;line-height:1.5}
+.t{font-size:14px;color:var(--text2);font-weight:600;line-height:1.55;margin-top:8px;white-space:pre-wrap;word-break:break-word}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:100px;background:rgba(92,138,106,.10);color:var(--purple);margin:2px 4px 2px 0}
+.tag.bad{background:rgba(220,80,70,.12);color:var(--danger)}.tag.idv{background:rgba(37,99,235,.10);color:var(--idv)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button.b{padding:9px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:#fff;font:800 14px 'Nunito',sans-serif;cursor:pointer}
+button.g{background:var(--surface2);color:var(--text);border:1.5px solid var(--border)}
+button.r{background:var(--danger)}
+button:disabled{opacity:.5;cursor:default}
+input,textarea{padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font:600 14px 'Nunito',sans-serif;outline:none}
+.empty{padding:40px;text-align:center;color:var(--muted);font-weight:700}
+.center{max-width:380px;margin:80px auto;text-align:center}
+.center input{width:100%;margin:10px 0}
+.convo{max-height:320px;overflow:auto;background:var(--surface2);border-radius:10px;padding:10px;margin-top:10px;font-size:13.5px}
+.convo div{padding:4px 0;border-bottom:1px solid var(--border)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:100px;font-weight:800;display:none;z-index:50}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="wordmark"><span class="ly">y</span><span class="lo1">o</span><span class="lo2">o</span><span class="ld">d</span><span class="ll">l</span><span class="le">e</span><span class="wm-tag">tutors admin</span></div>
+  <div><span id="who" class="m"></span> <button class="b g" id="out" style="display:none" onclick="sb.auth.signOut().then(()=>location.reload())">Sign out</button></div>
+</div></header>
+<div class="wrap" id="main"><div class="empty">Loading…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const sb=supabase.createClient('https://pyzugtltkbpcxvokdmps.supabase.co','sb_publishable_9qnjqRwusYBArg79bBv81w_kauJZPBZ');
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2600);}
+function when(d){return d?new Date(d).toLocaleString('en-CA',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'Not set';}
+const FLAG={phone_number:'phone number',email_address:'email address',off_app:'move off app',scam:'scam payment'};
+let Q=null,tab='profiles';
+
+sb.auth.getSession().then(({data:{session}})=>session?start(session.user):loginForm());
+sb.auth.onAuthStateChange((e,s)=>{if(e==='SIGNED_IN'&&s)start(s.user);});
+function loginForm(){
+  $('main').innerHTML=`<div class="center"><div class="h">Admin sign in</div><div class="m">Use your Yoodle admin account.</div>
+    <button class="b" style="width:100%;margin-top:14px" onclick="sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}})">Continue with Google</button>
+    <input id="em" type="email" placeholder="you@yoodle.ca"><button class="b g" style="width:100%" onclick="sendCode()">Email me a code</button>
+    <input id="code" inputmode="numeric" placeholder="6-digit code" style="display:none"><button class="b" id="vbtn" style="width:100%;display:none" onclick="verify()">Sign in</button></div>`;
+}
+async function sendCode(){const{error}=await sb.auth.signInWithOtp({email:$('em').value.trim()});if(error)return toast(error.message);$('code').style.display=$('vbtn').style.display='block';toast('Code sent');}
+async function verify(){const{error}=await sb.auth.verifyOtp({email:$('em').value.trim(),token:$('code').value.trim(),type:'email'});if(error)toast(error.message);}
+let _started=false;
+async function start(user){
+  if(_started)return;_started=true;
+  $('who').textContent=user.email;$('out').style.display='inline-block';
+  const{data,error}=await sb.from('admin_users').select('email').eq('email',user.email).maybeSingle();
+  if(error||!data){$('main').innerHTML='<div class="empty">This account isn\'t a Yoodle admin.</div>';return;}
+  load();
+}
+async function load(){
+  const{data,error}=await sb.rpc('tutor_admin_queue');
+  if(error){$('main').innerHTML=`<div class="empty">Couldn't load the queue: ${esc(error.message)}</div>`;return;}
+  Q=data;render();
+}
+function setTab(t){tab=t;render();}
+function render(){
+  const n={profiles:Q.profiles.length,checks:Q.checks.length,reports:Q.reports.length,flagged:Q.flagged.length};
+  const T=[['profiles','Tutor approvals'],['checks','Background checks'],['reports','Reports'],['flagged','Flagged messages'],['suspend','Suspend']];
+  let h=`<div class="tabs">${T.map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}${n[k]?`<b>${n[k]}</b>`:''}</button>`).join('')}<button onclick="load()">↻ Refresh</button></div>`;
+  if(tab==='profiles')h+=Q.profiles.length?Q.profiles.map(p=>`<div class="card"><div class="row"><div><div class="h">${esc(p.name||'No name')}</div><div class="m">${esc(p.email||'')} · submitted ${when(p.updated_at)}</div></div>
+      <div>${p.id_verified?'<span class="tag idv">✓ ID verified</span>':'<span class="tag bad">ID not verified</span>'}</div></div>
+      <div class="m" style="margin-top:8px">${esc(p.headline||'')}</div>
+      <div style="margin-top:6px">${(p.subjects||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${(p.grade_levels||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</div>
+      <div class="m">$${esc(p.hourly_rate)}/hr · ${esc(p.modes)} · ${esc(p.service_area||'')}</div>
+      <div class="t">${esc(p.bio||'')}</div>
+      <div class="btns"><input id="pn-${p.profile_id}" placeholder="Note to tutor (required to reject)" style="flex:1;min-width:200px">
+        <button class="b" ${p.id_verified?'':'title="Tutor must finish ID verification first" disabled'} onclick="reviewProfile('${p.profile_id}',true)">Approve</button>
+        <button class="b r" onclick="reviewProfile('${p.profile_id}',false)">Needs changes</button></div></div>`).join(''):'<div class="empty">No tutor profiles waiting. 🎉</div>';
+  if(tab==='checks')h+=Q.checks.length?Q.checks.map(c=>`<div class="card"><div class="row"><div><div class="h">${esc(c.name||'No name')}</div><div class="m">${esc(c.email||'')} · uploaded ${when(c.minors_submitted_at)}</div></div>
+      <div>${c.id_verified?'<span class="tag idv">✓ ID verified</span>':'<span class="tag bad">ID not verified</span>'}</div></div>
+      <div class="m" style="margin-top:8px">Check: the name matches the ID-verified name, it's a <b>Vulnerable Sector</b> check (not a basic criminal record check), issued in the last 6 months, and shows no relevant record.</div>
+      <div class="btns"><button class="b g" onclick="viewDoc('${esc(c.minors_file_path)}')">Open document ↗</button>
+        <label class="m">Valid until <input type="date" id="exp-${c.profile_id}"></label>
+        <input id="cn-${c.profile_id}" placeholder="Note (required to reject)" style="flex:1;min-width:180px">
+        <button class="b" onclick="reviewCheck('${c.profile_id}',true)">Clear for under-18s</button>
+        <button class="b r" onclick="reviewCheck('${c.profile_id}',false)">Reject</button></div></div>`).join(''):'<div class="empty">No background checks waiting.</div>';
+  if(tab==='reports')h+=Q.reports.length?Q.reports.map(r=>`<div class="card"><div class="row"><div><div class="h">${esc(r.reason)}</div>
+      <div class="m">${esc(r.reporter_name||'?')} reported <b>${esc(r.reported_name||'?')}</b> · ${when(r.created_at)}</div></div>
+      <span class="tag bad">Open</span></div>${r.details?`<div class="t">${esc(r.details)}</div>`:''}
+      ${r.conversation_id?`<div class="btns"><button class="b g" onclick="showConvo('${r.conversation_id}','rc-${r.id}')">Show conversation</button></div><div id="rc-${r.id}"></div>`:''}
+      <div class="btns"><input id="rr-${r.id}" placeholder="Resolution note" style="flex:1;min-width:200px">
+        <button class="b" onclick="resolve('${r.id}')">Resolve</button>
+        <button class="b r" onclick="suspend('${r.reported_id}',true,'${r.id}')">Suspend ${esc((r.reported_name||'').split(' ')[0])}</button></div></div>`).join(''):'<div class="empty">No open reports.</div>';
+  if(tab==='flagged')h+=Q.flagged.length?Q.flagged.map(m=>`<div class="card"><div class="row"><div><div class="h">${esc(m.sender_name||'?')}</div><div class="m">${when(m.created_at)} · ${m.sender_id===m.tutor_id?'tutor':'learner'}</div></div>
+      <div>${(m.flag_reasons||[]).map(f=>`<span class="tag bad">${FLAG[f]||esc(f)}</span>`).join('')}</div></div>
+      <div class="t">${esc(m.body)}</div>
+      <div class="btns"><button class="b g" onclick="showConvo('${m.conversation_id}','fc-${m.id}')">Show conversation</button>
+        <button class="b" onclick="clearFlag('${m.id}')">OK, dismiss</button>
+        <button class="b r" onclick="suspend('${m.sender_id}',true)">Suspend sender</button></div><div id="fc-${m.id}"></div></div>`).join(''):'<div class="empty">No flagged messages.</div>';
+  if(tab==='suspend')h+=`<div class="card"><div class="h">Suspend or restore an account</div>
+      <div class="m">Suspending blocks the account on yoodle.ca and Yoodle Tutors, hides their tutor listing and cancels their upcoming sessions (the other person is notified in the app).</div>
+      <div class="btns"><input id="sus-id" placeholder="Profile id (uuid)" style="flex:1;min-width:280px"><button class="b r" onclick="suspend($('sus-id').value.trim(),true)">Suspend</button><button class="b g" onclick="suspend($('sus-id').value.trim(),false)">Unsuspend</button></div></div>
+      <div class="card"><div class="h">Tutor listings hidden by admins</div>${Q.hidden.length?Q.hidden.map(x=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--border)"><span>${esc(x.name||x.profile_id)}</span><button class="b g" onclick="suspend('${x.profile_id}',false)">Restore</button></div>`).join(''):'<div class="m">None.</div>'}</div>`;
+  $('main').innerHTML=h;
+}
+async function call(name,args,ok){const{error}=await sb.rpc(name,args);if(error){toast('Error: '+error.message);return false;}toast(ok);return true;}
+async function reviewProfile(id,approve){
+  const note=$('pn-'+id).value.trim();if(!approve&&!note)return toast('Add a note so the tutor knows what to fix');
+  if(await call('tutor_admin_review_profile',{p_tutor:id,p_approve:approve,p_note:note||null},approve?'Approved':'Sent back'))load();
+}
+async function reviewCheck(id,clear){
+  const note=$('cn-'+id).value.trim(),exp=$('exp-'+id).value||null;
+  if(!clear&&!note)return toast('Add a note explaining why');
+  if(clear&&!exp&&!confirm('No expiry date set, so the clearance will never expire. Continue?'))return;
+  if(await call('tutor_admin_review_check',{p_tutor:id,p_clear:clear,p_expires:exp,p_note:note||null},clear?'Cleared for under-18s':'Rejected'))load();
+}
+async function viewDoc(path){
+  const{data,error}=await sb.storage.from('tutor-vsc').createSignedUrl(path,300);
+  if(error)return toast('Error: '+error.message);window.open(data.signedUrl,'_blank','noopener');
+}
+async function resolve(id){if(await call('tutor_admin_resolve_report',{p_report:id,p_resolution:$('rr-'+id).value.trim()||null},'Resolved'))load();}
+async function clearFlag(id){if(await call('tutor_admin_clear_flag',{p_message:id},'Dismissed'))load();}
+async function suspend(id,on,reportId){
+  if(!/^[0-9a-f-]{36}$/i.test(id||''))return toast('Enter a valid profile id');
+  let reason=null;
+  if(on){reason=prompt('Reason for suspension (shown in the admin log):');if(reason===null)return;}
+  const{error}=await sb.rpc('admin_suspend_user',{p_user_id:id,p_suspend:on,p_reason:reason});
+  if(error)return toast('Error: '+error.message);
+  await sb.rpc('tutor_admin_set_hidden',{p_profile:id,p_hidden:on});
+  if(on&&reportId)await sb.rpc('tutor_admin_resolve_report',{p_report:reportId,p_resolution:'Suspended: '+(reason||'')});
+  toast(on?'Account suspended':'Account restored');load();
+}
+async function showConvo(cid,target){
+  const{data,error}=await sb.from('tutor_messages').select('body,kind,sender_id,flagged,created_at,profiles!tutor_messages_sender_id_fkey(name)').eq('conversation_id',cid).order('created_at').limit(300);
+  if(error)return toast('Error: '+error.message);
+  $(target).innerHTML=`<div class="convo">${(data||[]).map(m=>`<div>${m.kind==='system'?'📌':''}<b>${esc(m.profiles?.name||'?')}</b> <span class="m">${when(m.created_at)}</span>${m.flagged?' <span class="tag bad">flagged</span>':''}<br>${esc(m.body)}</div>`).join('')||'Empty'}</div>`;
+}
+</script>
+</body>
+</html>
