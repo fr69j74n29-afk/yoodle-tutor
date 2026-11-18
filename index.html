@@ -179,21 +179,6 @@ body:not(.theme-sage-dark) .nav-i.active{color:#2E4A38}
 .maplibregl-marker:hover{z-index:5}
 .map-me{width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 6px rgba(37,99,235,.2),0 1px 4px rgba(0,0,0,.3)}
 
-/* YOODLE SITES PAGE — buttons to yoodle.ca and pro.yoodle.ca (same account on all Yoodle sites) */
-/* Square tiles, same as yoodle.ca "More from Yoodle". Add a site = add one more <a class="site-tile">. */
-.site-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:560px}
-.site-tile{position:relative;aspect-ratio:1/1;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;padding:16px;border-radius:20px;text-decoration:none;color:#fff;font-family:'Nunito',sans-serif;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.15);transition:transform .15s}
-.site-tile:active{transform:scale(.97)}
-.site-tile:hover{transform:translateY(-2px)}
-.site-tile:focus-visible{outline:3px solid var(--text);outline-offset:3px}
-.site-tile.main{background:linear-gradient(145deg,#1F8E9E,#156672)}
-.site-tile.pros{background:linear-gradient(145deg,#EA6A12,#C4560B)}
-.site-ic{position:absolute;top:14px;left:14px;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:28px}
-.site-go{position:absolute;top:14px;right:16px;font-size:18px;font-weight:800;opacity:.85}
-.site-name{font-size:18px;font-weight:900;line-height:1.15}
-.site-d{font-size:12.5px;font-weight:700;line-height:1.35;opacity:.92}
-@media (max-width:340px){.site-d{display:none}}
-
 /* FORMS */
 .form-g{margin-bottom:16px}
 .form-lbl{display:block;font-size:13.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
@@ -565,28 +550,6 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
     </div>
   </div>
 
-  <!-- YOODLE SITES -->
-  <div class="app-view" id="app-yoodle">
-    <div class="view-scroll">
-      <div class="section-h" style="margin-bottom:6px">More from Yoodle</div>
-      <div class="section-sub" style="margin-bottom:18px">Sign in with this same account on every Yoodle site.</div>
-      <div class="site-grid">
-        <a class="site-tile main" href="https://yoodle.ca/" target="_blank" rel="noopener">
-          <span class="site-ic" aria-hidden="true">🤝</span>
-          <span class="site-name">Yoodle</span>
-          <span class="site-d">Post local jobs, find work and helpers nearby</span>
-          <span class="site-go" aria-hidden="true">↗</span>
-        </a>
-        <a class="site-tile pros" href="https://pro.yoodle.ca/" target="_blank" rel="noopener">
-          <span class="site-ic" aria-hidden="true">🧰</span>
-          <span class="site-name">Yoodle Pros</span>
-          <span class="site-d">Plumbers, electricians, HVAC &amp; more</span>
-          <span class="site-go" aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </div>
-  </div>
-
   <nav class="bottom-nav">
     <button class="nav-i" id="ni-find" onclick="nav('find')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find
@@ -602,9 +565,6 @@ body.theme-sage-dark .status-pill.warn{color:var(--yellow)}
     </button>
     <button class="nav-i" id="ni-profile" onclick="nav('profile')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
-    </button>
-    <button class="nav-i" id="ni-yoodle" onclick="nav('yoodle')" aria-label="Other Yoodle sites">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Sites
     </button>
   </nav>
 </div>
