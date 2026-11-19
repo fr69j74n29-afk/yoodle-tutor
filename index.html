@@ -643,7 +643,12 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-head"><div class="modal-title">Filters</div><button class="x-btn" onclick="closeOv('filter-sheet')">✕</button></div>
-    <div class="form-g" style="margin-top:12px"><label class="form-lbl">Subject</label><select class="form-sel" id="f-subject"></select></div>
+    <div class="form-g" style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div><div style="font-size:15px;font-weight:800">This is for a minor</div>
+        <div class="form-hint" style="margin-top:2px">👪 For your child (under 18). Only tutors with a cleared Vulnerable Sector Check are shown. Saved to your account.</div></div>
+        <label class="sw" title="This is for a minor"><input type="checkbox" id="f-minor"><span></span></label></div></div>
+    <div class="form-g"><label class="form-lbl">Subject</label><select class="form-sel" id="f-subject"></select></div>
     <div class="form-g"><label class="form-lbl">Grade level</label><select class="form-sel" id="f-grade"></select></div>
     <div class="form-g"><label class="form-lbl">Where</label>
       <div class="seg"><button data-fm="" onclick="fSetMode('')">Either</button><button data-fm="in_person" onclick="fSetMode('in_person')">In person</button><button data-fm="online" onclick="fSetMode('online')">Online</button></div></div>
@@ -1437,11 +1442,15 @@ function openFilters(){
   document.getElementById('f-subject').value=f.subject;document.getElementById('f-grade').value=f.grade;
   document.getElementById('f-km').value=f.km;document.getElementById('f-km-v').textContent=f.km;
   document.getElementById('f-rate').value=f.maxRate;document.getElementById('f-day').value=f.day;document.getElementById('f-time').value=f.time;
+  document.getElementById('f-minor').checked=forMinor();
   fSetMode(f.mode);openOv('filter-sheet');
 }
 let _fMode='';
 function fSetMode(m){_fMode=m;document.querySelectorAll('[data-fm]').forEach(b=>b.classList.toggle('on',b.dataset.fm===m));}
-function applyFilters(){
+async function applyFilters(){
+  // "This is for a minor" is the account setting (same as the Profile toggle), not a saved filter
+  const minor=document.getElementById('f-minor').checked;
+  if(minor!==forMinor())await setForMinor(minor);
   Object.assign(findState,{subject:document.getElementById('f-subject').value,grade:document.getElementById('f-grade').value,mode:_fMode,
     km:+document.getElementById('f-km').value,maxRate:document.getElementById('f-rate').value,day:document.getElementById('f-day').value,time:document.getElementById('f-time').value});
   saveFind();closeOv('filter-sheet');renderFind();
