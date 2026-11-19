@@ -643,7 +643,12 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-head"><div class="modal-title">Filters</div><button class="x-btn" onclick="closeOv('filter-sheet')">✕</button></div>
-    <div class="form-g" style="margin-top:12px"><label class="form-lbl">Subject</label><select class="form-sel" id="f-subject"></select></div>
+    <div class="form-g" style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div><div style="font-size:15px;font-weight:800">This is for a minor</div>
+        <div class="form-hint" style="margin-top:2px">👪 For your child (under 18). Only tutors with a cleared Vulnerable Sector Check are shown. Saved to your account.</div></div>
+        <label class="sw" title="This is for a minor"><input type="checkbox" id="f-minor"><span></span></label></div></div>
+    <div class="form-g"><label class="form-lbl">Subject</label><select class="form-sel" id="f-subject"></select></div>
     <div class="form-g"><label class="form-lbl">Grade level</label><select class="form-sel" id="f-grade"></select></div>
     <div class="form-g"><label class="form-lbl">Where</label>
       <div class="seg"><button data-fm="" onclick="fSetMode('')">Either</button><button data-fm="in_person" onclick="fSetMode('in_person')">In person</button><button data-fm="online" onclick="fSetMode('online')">Online</button></div></div>
@@ -974,7 +979,7 @@ function tapConfirm(btn,prompt,action){
 function tapConfirmReset(btn){if(!btn||!btn.dataset.armedAt)return;clearTimeout(btn._tcTimer);btn.innerHTML=btn.dataset.tcLabel;delete btn.dataset.armedAt;btn.classList.remove('tc-armed');}
 document.addEventListener('click',()=>document.querySelectorAll('.card-menu-drop.open').forEach(m=>m.classList.remove('open')));
 // RPC that returns {ok,reason} — shows a plain-words error and returns null on failure
-const REASONS={not_learner:'Switch on your learner side (Profile) to do this.',self_booking:'You can\'t book yourself.',side:'Unknown side.',not_member:'Finish setting up your account first.',safety_ack:'Please confirm the safety guidelines.',tutor_unavailable:'This tutor isn\'t taking bookings right now.',blocked:'You can\'t book this person.',not_cleared_for_minors:'This tutor isn\'t cleared to teach under-18s.',subject_or_grade:'Pick a subject and grade this tutor teaches.',mode:'This tutor doesn\'t offer that format.',start_time:'Pick a start time at least 2 hours from now.',weeks:'Weekly bookings are 2–12 weeks.',already_requested:'You already have a pending request with this tutor.',not_found:'Not found. It may have changed. Pull to refresh.',not_pending:'This request was already answered.',start_passed:'The requested start time has passed. Ask the learner to send a new request.',closed:'This booking is already closed.',not_cancellable:'This session can\'t be cancelled any more.',not_scheduled:'This session isn\'t scheduled any more.',inside_window:`Less than ${CANCEL_HOURS} hours to go. You can cancel, but not reschedule.`,not_started:'You can complete a session once it has started.',rating:'Pick 1–5 stars.',no_completed_session:'You can review after a completed session.',incomplete:'Add a bio, subjects, grades and rate first.',area_needed:'Set your area so in-person tutors can find you, or choose Online.',note_contact:'Please take phone numbers, emails and social handles out of your note. Tutors will message you on Yoodle.',too_many_requests:'You can have 3 open requests at a time. Close one from your Profile first.',not_live:'Your listing needs to be live (approved and ID-verified) to reply to learners.',message_length:'Write a message (up to 1000 characters).',request_closed:'This request has closed.',request_not_fit:'This request doesn\'t match your format, travel distance or under-18 clearance.',already_responded:'You\'ve already replied to this request.',reply_limit:'You\'ve replied to 20 requests today. Try again tomorrow.',no_profile:'Save your tutor profile first.',bad_path:'Upload failed. Try again.',no_profile_or_cleared:'Save your tutor profile first.',suspended:'Your account is suspended.',not_signed_in:'Please sign in again.'};
+const REASONS={not_learner:'Switch on your learner side (Profile) to do this.',self_booking:'You can\'t book yourself.',side:'Unknown side.',not_member:'Finish setting up your account first.',safety_ack:'Please confirm the safety guidelines.',tutor_unavailable:'This tutor isn\'t taking bookings right now.',blocked:'You can\'t book this person.',not_cleared_for_minors:'This tutor isn\'t cleared to teach under-18s.',subject_or_grade:'Pick a subject and grade this tutor teaches.',mode:'This tutor doesn\'t offer that format.',start_time:'Pick a start time at least 2 hours from now.',weeks:'Weekly bookings are 2–12 weeks.',already_requested:'You already have a pending request with this tutor.',not_found:'Not found. It may have changed. Pull to refresh.',not_pending:'This request was already answered.',start_passed:'The requested start time has passed. Ask the learner to send a new request.',closed:'This booking is already closed.',not_cancellable:'This session can\'t be cancelled any more.',not_scheduled:'This session isn\'t scheduled any more.',inside_window:`Less than ${CANCEL_HOURS} hours to go. You can cancel, but not reschedule.`,not_started:'You can complete a session once it has started.',rating:'Pick 1–5 stars.',no_completed_session:'You can review after a completed session.',incomplete:'Add a bio, subjects, grades and rate first.',area_needed:'Set your area so in-person tutors can find you, or choose Online.',note_contact:'Please take phone numbers, emails and social handles out of your note. Tutors will message you on Yoodle.',too_many_requests:'You can have 3 open requests at a time. Close one from your Profile first.',not_live:'Your listing needs to be live (approved and ID-verified) to reply to learners.',message_length:'Write a message (up to 1000 characters).',request_closed:'This request has closed.',request_not_fit:'This request doesn\'t match your format or travel distance, or it needs a cleared background check (Grade 12 and below, or for a child).',already_responded:'You\'ve already replied to this request.',reply_limit:'You\'ve replied to 20 requests today. Try again tomorrow.',no_profile:'Save your tutor profile first.',bad_path:'Upload failed. Try again.',no_profile_or_cleared:'Save your tutor profile first.',suspended:'Your account is suspended.',not_signed_in:'Please sign in again.'};
 async function rpc(name,args){
   const{data,error}=await sb.rpc(name,args||{});
   if(error){const m=(error.message||'').match(/\b(suspended|not_signed_in|tutor_unavailable|blocked)\b/);toast('❌ '+(m?REASONS[m[1]]:error.message));return null;}
@@ -1437,11 +1442,15 @@ function openFilters(){
   document.getElementById('f-subject').value=f.subject;document.getElementById('f-grade').value=f.grade;
   document.getElementById('f-km').value=f.km;document.getElementById('f-km-v').textContent=f.km;
   document.getElementById('f-rate').value=f.maxRate;document.getElementById('f-day').value=f.day;document.getElementById('f-time').value=f.time;
+  document.getElementById('f-minor').checked=forMinor();
   fSetMode(f.mode);openOv('filter-sheet');
 }
 let _fMode='';
 function fSetMode(m){_fMode=m;document.querySelectorAll('[data-fm]').forEach(b=>b.classList.toggle('on',b.dataset.fm===m));}
-function applyFilters(){
+async function applyFilters(){
+  // "This is for a minor" is the account setting (same as the Profile toggle), not a saved filter
+  const minor=document.getElementById('f-minor').checked;
+  if(minor!==forMinor())await setForMinor(minor);
   Object.assign(findState,{subject:document.getElementById('f-subject').value,grade:document.getElementById('f-grade').value,mode:_fMode,
     km:+document.getElementById('f-km').value,maxRate:document.getElementById('f-rate').value,day:document.getElementById('f-day').value,time:document.getElementById('f-time').value});
   saveFind();closeOv('filter-sheet');renderFind();
@@ -2235,7 +2244,9 @@ async function renderLearners(){
   const{data,error}=await sb.rpc('tutor_browse_requests',{p_only_my_subjects:lrMine});
   if(error){el.innerHTML=emptyState('⚠️','Couldn\'t load requests',esc(error.message));return;}
   lrRows=data||[];
-  document.getElementById('learners-sub').textContent=`${lrRows.length} open ${lrRows.length===1?'request':'requests'} · newest first`;
+  const cleared=t.minors_status==='cleared'&&(!t.minors_expires_at||new Date(t.minors_expires_at+'T23:59')>=new Date());
+  document.getElementById('learners-sub').textContent=`${lrRows.length} open ${lrRows.length===1?'request':'requests'} · newest first`
+    +(cleared?'':' · Grade 12 and below need a background check (Profile)'); // 014: the database hides them
   el.innerHTML=lrRows.length?lrRows.map(requestCard).join('')
     :emptyState('🔭','No requests right now',lrMine?'Nothing matches your subjects and grades yet. Try "All subjects", or check back soon.':'Check back soon. New requests show up here.');
   paintView('learners');
