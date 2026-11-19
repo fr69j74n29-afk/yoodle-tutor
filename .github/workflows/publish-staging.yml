@@ -1,0 +1,39 @@
+# Publishes the staging branch as a preview at https://tutor.yoodle.ca/staging/
+# GitHub Pages builds from main, so on every push to staging this copies staging's pages
+# into a staging/ folder on main and asks Pages to rebuild. The live site at / is not touched.
+name: Publish staging preview
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency: publish-staging
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Copy staging pages into main/staging/
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin staging
+          rm -rf staging && mkdir staging
+          git archive origin/staging index.html admin.html | tar -x -C staging
+          if [ -z "$(git status --porcelain -- staging)" ]; then echo "Preview already up to date"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add staging
+          git commit -m "Publish staging preview ($(git rev-parse --short origin/staging))"
+          git push origin HEAD:main
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages rebuild request failed; the push should still trigger a build"
