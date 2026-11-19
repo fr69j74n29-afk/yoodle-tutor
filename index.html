@@ -484,10 +484,6 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
   <!-- FIND (learners) -->
   <div class="app-view" id="app-find">
     <div style="padding:12px 16px 0;flex-shrink:0">
-      <div class="seg" style="margin-bottom:10px">
-        <button id="who-me" onclick="setWho(false)">For me</button>
-        <button id="who-child" onclick="setWho(true)">For my child</button>
-      </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="row-btn" style="margin:0;padding:10px 14px;font-size:14px;flex:1;min-width:0" onclick="openAreaSheet()"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 <span id="find-area">Set your area</span></span><span style="color:var(--muted)">›</span></button>
         <button class="row-btn" style="margin:0;padding:10px 14px;font-size:14px;width:auto" onclick="openFilters()">⚙️ Filters <span id="filter-count" class="tag" style="display:none"></span></button>
@@ -666,10 +662,7 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
     <div class="modal-head"><div class="modal-title">What are you looking for?</div><button class="x-btn" onclick="closeOv('post-modal')">✕</button></div>
     <div class="form-hint" style="margin:6px 0 14px">Approved, ID-verified tutors who fit your request can message you. They see your first name and neighbourhood, never your address.</div>
     <div class="form-legend"><span class="req">*</span> Required</div>
-    <div class="form-g"><label class="form-lbl">Who is it for? <span class="req">*</span></label>
-      <div class="seg"><button id="pr-me" onclick="prSetWho(false)">For me</button><button id="pr-child" onclick="prSetWho(true)">For my child</button></div>
-      <div class="form-hint" id="pr-who-hint"></div>
-    </div>
+    <div class="form-hint" id="pr-who-hint" style="margin:-6px 0 12px"></div>
     <div class="form-g"><label class="form-lbl">Subject <span class="req">*</span></label><select class="form-sel" id="pr-subject"></select></div>
     <div class="form-g"><label class="form-lbl">Grade level <span class="req">*</span></label><select class="form-sel" id="pr-grade"></select></div>
     <div class="form-g"><label class="form-lbl">Format <span class="req">*</span></label>
@@ -712,10 +705,7 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
 <div class="modal-ov" id="book-modal" onclick="if(event.target===this)closeOv('book-modal')">
   <div class="modal-sheet">
     <div class="modal-head"><div class="modal-title">Book <span id="bk-name"></span></div><button class="x-btn" onclick="closeOv('book-modal')">✕</button></div>
-    <div class="form-g" style="margin-top:14px"><label class="form-lbl">Is this session for you or your child?</label>
-      <div class="seg"><button id="bk-me" onclick="bkSetWho(false)">For me</button><button id="bk-child" onclick="bkSetWho(true)">For my child</button></div>
-      <div class="form-hint" id="bk-who-hint"></div>
-    </div>
+    <div class="form-hint" id="bk-who-hint" style="margin-top:14px"></div>
     <div class="form-g"><label class="form-lbl">Subject</label><select class="form-sel" id="bk-subject"></select></div>
     <div class="form-g"><label class="form-lbl">Grade level</label><select class="form-sel" id="bk-grade"></select></div>
     <div class="form-g"><label class="form-lbl" id="bk-note-l">Note for the tutor (optional)</label><textarea class="form-ta" id="bk-note" maxlength="500" placeholder="What would you like help with?"></textarea><div class="form-hint" id="bk-note-hint"></div></div>
@@ -893,6 +883,7 @@ if(location.pathname.startsWith('/staging/')){document.title='[Staging] '+docume
     <button class="ga-choice" id="ob-tutor" style="border:1.5px solid var(--border)" onclick="obPick('tutor')">
       <div class="ga-choice-ico" style="background:#8DE0A8">🎓</div><div><div class="ga-choice-t">I want to tutor</div><div class="ga-choice-d">Set up a profile and go live · background check to teach under-18s</div></div>
     </button>
+    <label class="check-row" id="ob-minor-row" style="display:none"><input type="checkbox" id="ob-minor"> <span>This account is to find a tutor for my child (under 18). We'll only show tutors with a cleared Vulnerable Sector Check. You can change this anytime in your Profile.</span></label>
     <label class="check-row"><input type="checkbox" id="ob-adult" onchange="obCheck()"> <span>I'm 18 or older. Accounts are for adults only: parents book for their children; children don't get accounts.</span></label>
     <label class="check-row"><input type="checkbox" id="ob-terms" onchange="obCheck()"> <span>I agree to the <a href="https://yoodle.ca/terms" target="_blank" rel="noopener" style="color:var(--purple)">Terms of Use</a> and <a href="javascript:void 0" onclick="event.preventDefault();openSafety()" style="color:var(--purple)">session safety guidelines</a>.</span></label>
     <button class="btn-primary" id="ob-go" disabled onclick="saveOnboarding()">Continue</button>
@@ -994,10 +985,13 @@ async function rpc(name,args){
 /* ── STATE ── */
 let sb,me=null,ME=null,ROLE=null,HAS_TUTOR=false,HAS_LEARNER=false; // ME = tutor_me(): {member,tutor,id_verified,suspended}; ROLE = side being shown
 let blockedIds=new Set();
-let findState={forChild:false,subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''};
+let findState={subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''};
+// "This account is for a minor" (013): set at setup or on the Profile page. On -> only tutors with a
+// cleared Vulnerable Sector Check are shown, and bookings / requests / the map pin are sent as for a child.
+const forMinor=()=>!!ME?.member?.for_minor;
 let area=null; // {lat,lng,label} — this device only
 try{area=JSON.parse(localStorage.getItem('yt_area')||'null');}catch(e){}
-try{Object.assign(findState,JSON.parse(localStorage.getItem('yt_find')||'{}'));}catch(e){}
+try{Object.assign(findState,JSON.parse(localStorage.getItem('yt_find')||'{}'));delete findState.forChild;}catch(e){}
 
 /* ── START-UP ── */
 window.addEventListener('DOMContentLoaded',()=>{
@@ -1195,13 +1189,15 @@ function openOnboarding(){
 function obPick(r){
   obRole=r;
   ['learner','tutor'].forEach(x=>{const b=document.getElementById('ob-'+x);b.style.borderColor=x===r?'var(--purple)':'var(--border)';b.style.boxShadow=x===r?'0 0 0 2px var(--purple)':'none';});
+  document.getElementById('ob-minor-row').style.display=r==='learner'?'flex':'none';
   obCheck();
 }
 function obCheck(){document.getElementById('ob-go').disabled=!(obRole&&document.getElementById('ob-adult').checked&&document.getElementById('ob-terms').checked);}
 async function saveOnboarding(){
   const btn=document.getElementById('ob-go');btn.disabled=true;btn.textContent='Saving…';
   const now=new Date().toISOString();
-  const{error}=await sb.from('tutor_members').insert({profile_id:me.id,role:obRole,adult_confirmed_at:now,terms_accepted_at:now});
+  const{error}=await sb.from('tutor_members').insert({profile_id:me.id,role:obRole,adult_confirmed_at:now,terms_accepted_at:now,
+    for_minor:obRole==='learner'&&document.getElementById('ob-minor').checked});
   if(!error&&obRole==='tutor')await sb.from('tutor_profiles').insert({profile_id:me.id});
   btn.textContent='Continue';
   if(error){btn.disabled=false;return toast('❌ '+error.message);}
@@ -1300,7 +1296,7 @@ async function myTutorArea(){
 //   Learners → learners who switched on "Let tutors near me see I'm looking" (tutor_map_learners)
 var _mapExtra={};
 async function mapExtra(which){
-  const fc=!!findState.forChild; // for a child → database returns only tutors cleared for under-18s
+  const fc=forMinor(); // for a child → database returns only tutors cleared for under-18s
   const key=which==='find'?`${area?.lat},${area?.lng},${fc}`:'me',c=_mapExtra[which];
   if(c&&c.key===key&&Date.now()-c.at<60000)return c.rows;
   const{data,error}=which==='find'
@@ -1332,7 +1328,7 @@ async function drawMap(which){
     if(onClick)el.onclick=e=>{e.stopPropagation();onClick();};
     m.markers.push(new maplibregl.Marker({element:el,anchor}).setLngLat([lng,lat]).addTo(m.map));pts.push([lng,lat]);};
   const pin=(cls,ico,label)=>{const el=document.createElement('div');el.className='map-pin '+cls;el.innerHTML=`<span class="pin-av">${ico}</span>${label}`;return el;};
-  const forChild=which==='find'&&findState.forChild;
+  const forChild=which==='find'&&forMinor();
   let notes=[];
   if(which==='find'){
     // All live tutors; the ones matching your search are full colour, the rest faded.
@@ -1420,7 +1416,7 @@ function setArea(p){
   try{localStorage.setItem('yt_area',JSON.stringify(area));}catch(e){}
   closeOv('area-sheet');
   document.getElementById('pr-area').textContent=area.label;
-  if(myPin)sb.rpc('tutor_set_learner_pin',{p_for_child:myPin.for_child,p_area_label:area.label,p_lat:area.lat,p_lng:area.lng}).then(()=>loadMyPin(),()=>{});
+  if(myPin)sb.rpc('tutor_set_learner_pin',{p_for_child:forMinor(),p_area_label:area.label,p_lat:area.lat,p_lng:area.lng}).then(()=>loadMyPin(),()=>{});
   if(document.getElementById('app-find').classList.contains('active'))renderFind();
   else toast('📍 Area set: '+p.label);
 }
@@ -1435,7 +1431,6 @@ function fillSelects(){
   document.getElementById('pr-subject').innerHTML=opt('','Pick a subject')+SUBJECTS.map(s=>opt(s.k,s.e+' '+s.k)).join('');
   document.getElementById('pr-grade').innerHTML=opt('','Pick a grade level')+GRADES.map(g=>opt(g,g)).join('');
 }
-function setWho(child){findState.forChild=child;saveFind();renderFind();}
 function saveFind(){try{localStorage.setItem('yt_find',JSON.stringify(findState));}catch(e){}}
 function openFilters(){
   const f=findState;
@@ -1454,9 +1449,7 @@ function applyFilters(){
 function resetFilters(){Object.assign(findState,{subject:'',grade:'',mode:'',km:15,maxRate:'',day:'',time:''});saveFind();closeOv('filter-sheet');renderFind();}
 let _searchSeq=0;
 async function renderFind(){
-  const f=findState;
-  document.getElementById('who-me').classList.toggle('on',!f.forChild);
-  document.getElementById('who-child').classList.toggle('on',f.forChild);
+  const f=findState,child=forMinor();
   document.getElementById('find-area').textContent=area?area.label:'Set your area';
   const n=['subject','grade','mode','maxRate','day'].filter(k=>f[k]).length+(f.km!==15?1:0);
   const fc=document.getElementById('filter-count');fc.textContent=n;fc.style.display=n?'inline-flex':'none';
@@ -1472,15 +1465,15 @@ async function renderFind(){
   const{data,error}=await sb.rpc('tutor_search',{
     p_lat:area?.lat??null,p_lng:area?.lng??null,p_subject:f.subject||null,p_grade:f.grade||null,
     p_max_km:f.km,p_max_rate:f.maxRate?+f.maxRate:null,p_mode:f.mode||null,p_day:f.day||null,p_time:f.time||null,
-    p_for_child:f.forChild,p_limit:60});
+    p_for_child:child,p_limit:60});
   if(seq!==_searchSeq)return;
   if(error){list.innerHTML=emptyState('😕','Couldn\'t load tutors',esc(error.message));return;}
   const rows=(data||[]).filter(t=>!blockedIds.has(t.profile_id));
   const bits=[f.subject||'All subjects',f.grade,f.mode?modeLabel(f.mode):'',f.mode==='online'?'':`within ${f.km} km`].filter(Boolean);
   sub.textContent=`${rows.length} ${rows.length===1?'tutor':'tutors'} · ${bits.join(' · ')} · best match first`;
-  if(f.forChild)sub.textContent+=' · background-checked only';
+  if(child)sub.textContent+=' · background-checked only';
   list.innerHTML=rows.length?rows.map(tutorCard).join('')
-    :emptyState('🔍','No tutors match yet',f.forChild?'Only tutors with a cleared background check appear for children. Try fewer filters or a wider distance.':'Try fewer filters or a wider distance.');
+    :emptyState('🔍','No tutors match yet',child?'Only tutors with a cleared background check appear for children. Try fewer filters or a wider distance.':'Try fewer filters or a wider distance.');
   findRows=rows;paintView('find');
 }
 function tutorCard(t){
@@ -1528,7 +1521,7 @@ async function openTutor(id){
     <div class="box"><div class="box-lbl">Reviews</div>${reviews}</div>
     ${canBook?`<div class="btn-row" style="position:sticky;bottom:0;background:var(--surface);padding-top:8px">
       <button class="btn-ghost" onclick="messageTutor('${t.profile_id}')">Message</button>
-      <button class="btn-primary" onclick="openBooking()">Book</button></div>`:''}`;
+      ${forMinor()&&!t.minors_cleared?`<button class="btn-primary" disabled>Not cleared for under-18s</button>`:`<button class="btn-primary" onclick="openBooking()">Book</button>`}</div>`:''}`;
 }
 async function messageTutor(id){
   const cid=await rpc('tutor_start_conversation',{p_tutor:id});
@@ -1541,7 +1534,8 @@ async function messageTutor(id){
 let bk={};
 function openBooking(){
   const t=viewTutor;if(!t)return;
-  bk={tutor:t,forChild:findState.forChild&&t.minors_cleared,kind:'trial',mode:t.modes==='online'?'online':'in_person'};
+  if(forMinor()&&!t.minors_cleared)return toast('This tutor isn\'t cleared to teach under-18s. Find one with the ✓ Under-18s badge');
+  bk={tutor:t,forChild:forMinor(),kind:'trial',mode:t.modes==='online'?'online':'in_person'};
   document.getElementById('bk-name').textContent=(t.name||'tutor').split(' ')[0];
   const opt=a=>a.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
   document.getElementById('bk-subject').innerHTML=opt(t.subjects||[]);
@@ -1558,11 +1552,10 @@ function openBooking(){
   closeOv('tutor-modal');openOv('book-modal');
 }
 function bkSetWho(child){
-  if(child&&!bk.tutor.minors_cleared){toast('This tutor isn\'t cleared to teach under-18s. Find one with the ✓ Under-18s badge');child=false;}
   bk.forChild=child;
-  document.getElementById('bk-me').classList.toggle('on',!child);document.getElementById('bk-child').classList.toggle('on',child);
+  document.getElementById('bk-who-hint').style.display=child?'block':'none';
   document.getElementById('bk-label-g').style.display=child?'block':'none';
-  document.getElementById('bk-who-hint').textContent=child?'👪 You stay the contact: messages and bookings go through your account. We only ask for the subject and grade, not your child\'s name, photo or birthday.':'';
+  document.getElementById('bk-who-hint').textContent=child?'👪 This session is for your child. You stay the contact: messages and bookings go through your account. We only ask for the subject and grade, not your child\'s name, photo or birthday.':'';
   document.getElementById('bk-note-l').textContent=child?'Note from the parent (optional)':'Note for the tutor (optional)';
   document.getElementById('bk-note').placeholder=child?'e.g. Struggling with fractions, has a unit test in 3 weeks':'What would you like help with?';
   document.getElementById('bk-note-hint').textContent=child?'Please don\'t include your child\'s name, school or other personal details.':'';
@@ -2007,7 +2000,8 @@ async function renderProfile(){
     <div class="form-g"><label class="form-lbl">Display name</label><input class="form-inp" id="p-name" maxlength="60" value="${esc(name)}"></div>
     <button class="btn-primary" style="margin-top:0" onclick="saveName()">Save name</button>
     <div class="form-hint">Your name and account are shared with yoodle.ca.</div>
-    ${ROLE==='learner'?`<div class="act-h">Your area</div><button class="row-btn" onclick="openAreaSheet()"><span>📍 ${esc(area?.label||'Not set')}</span><span style="color:var(--muted)">Change ›</span></button>
+    ${ROLE==='learner'?`<div id="my-minor"></div>
+    <div class="act-h">Your area</div><button class="row-btn" onclick="openAreaSheet()"><span>📍 ${esc(area?.label||'Not set')}</span><span style="color:var(--muted)">Change ›</span></button>
     <div id="my-pin"></div>
     <div class="act-h">Your tutor requests</div><div id="my-requests">${spin()}</div>`:''}
     <div class="act-h">Safety</div>
@@ -2019,12 +2013,34 @@ async function renderProfile(){
       <a href="https://yoodle.ca/privacy" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Privacy Policy ›</a>
       <a href="https://yoodle.ca/" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">Manage or delete your Yoodle account ›</a></div></div>
     <button class="btn-danger" onclick="signOut()">Sign out</button>`;
-  if(ROLE==='learner'){loadMyRequests();loadMyPin();}
+  if(ROLE==='learner'){renderForMinor();loadMyRequests();loadMyPin();}
+}
+
+/* ── "This account is for a minor" toggle (Profile). Changes which tutors Find and the map show. ── */
+function renderForMinor(){
+  const el=document.getElementById('my-minor');if(!el)return;
+  const on=forMinor();
+  el.innerHTML=`<div class="card" style="margin-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div><div style="font-size:15px;font-weight:800">This is for a minor</div>
+      <div style="font-size:13px;font-weight:700;color:var(--muted);line-height:1.5;margin-top:2px">${on
+        ?'👪 On. You\'re finding a tutor for your child (under 18). You\'ll only see tutors with a cleared Vulnerable Sector Check, and bookings and requests are marked as for your child.'
+        :'Off. You\'re finding a tutor for yourself. Switch on if you\'re booking for your child (under 18).'}</div></div>
+      <label class="sw" title="This account is to find a tutor for a minor"><input type="checkbox" ${on?'checked':''} onchange="setForMinor(this.checked)"><span></span></label></div>
+  </div>`;
+}
+async function setForMinor(on){
+  if(!await rpc('tutor_set_for_minor',{p_on:on}))return renderForMinor();
+  ME.member.for_minor=on;
+  _mapExtra={}; // map pins were cached for the old setting
+  if(myPin)myPin.for_child=on; // the database updated the pin too
+  renderForMinor();renderMyPin();
+  toast(on?'👪 Showing only tutors cleared for under-18s':'Showing all tutors');
 }
 
 /* ── LEARNER MAP PIN: opt-in "Let tutors near me see I'm looking" (off by default) ──
    On: the learner's area (rounded to ~1 km by the database, blurred again on the map) is saved so live
-   tutors see a pin with their first name and "for me / for my child". Off: the row is deleted. */
+   tutors see a pin with their first name and whether it's for their child (the account's "for a minor" setting). Off: the row is deleted. */
 var myPin; // undefined = not loaded, null = off, object = on
 async function loadMyPin(){ // also run on sign-in, so changing your area moves the pin from any screen
   const{data,error}=await sb.from('tutor_learner_pins').select('for_child,area_label,expires_at').eq('profile_id',me.id).maybeSingle();
@@ -2042,17 +2058,16 @@ function renderMyPin(){
         ?`Live tutors see your first name on their map near ${esc(myPin.area_label)}. The spot is blurred by about 1 km. On until ${new Date(myPin.expires_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}.`
         :'Off. Tutors only see you if you post a request. Switch on to show a blurred pin on their map.'}</div></div>
       <label class="sw" title="Show me on the tutor map"><input type="checkbox" ${on?'checked':''} onchange="setMyPin(this.checked)"><span></span></label></div>
-    ${on?`<div class="seg" style="margin-top:12px"><button class="${myPin.for_child?'':'on'}" onclick="setMyPin(true,false)">For me</button><button class="${myPin.for_child?'on':''}" onclick="setMyPin(true,true)">For my child</button></div>
-    <div class="form-hint">Tutors can't message you from the map. Nothing about your child is shown, and pins for a child only reach tutors cleared for under-18s.</div>`:''}
+    ${on?`<div class="form-hint">${myPin.for_child?'👪 Shown as for your child (set by "This is for a minor" above). ':''}Tutors can't message you from the map. Nothing about your child is shown, and pins for a child only reach tutors cleared for under-18s.</div>`:''}
   </div>`;
 }
-async function setMyPin(on,forChild){
+async function setMyPin(on){
   if(!on){
     if(!await rpc('tutor_clear_learner_pin'))return renderMyPin();
     myPin=null;renderMyPin();return toast('Your pin is off');
   }
   if(!area){renderMyPin();toast('📍 Set your area first');return openAreaSheet();}
-  const fc=forChild??myPin?.for_child??findState.forChild;
+  const fc=forMinor();
   if(!await rpc('tutor_set_learner_pin',{p_for_child:fc,p_area_label:area.label,p_lat:area.lat,p_lng:area.lng}))return renderMyPin();
   const wasOn=!!myPin;
   await loadMyPin();
@@ -2141,7 +2156,7 @@ function reqModeLabel(m){return m==='online'?'💻 Online':m==='in_person'?'📍
 // Learner: post / list / close
 let pr={forChild:false,mode:'either',avail:{}};
 function openPostRequest(){
-  pr={forChild:!!findState.forChild,mode:findState.mode||'either',avail:{}};
+  pr={forChild:forMinor(),mode:findState.mode||'either',avail:{}};
   document.getElementById('pr-subject').value=findState.subject||'';
   document.getElementById('pr-grade').value=findState.grade||'';
   document.getElementById('pr-rate').value=findState.maxRate||'';
@@ -2152,10 +2167,9 @@ function openPostRequest(){
 }
 function prSetWho(child){
   pr.forChild=child;
-  document.getElementById('pr-me').classList.toggle('on',!child);
-  document.getElementById('pr-child').classList.toggle('on',child);
+  document.getElementById('pr-who-hint').style.display=child?'block':'none';
   document.getElementById('pr-who-hint').textContent=child
-    ?'🛡️ Only tutors with a cleared Vulnerable Sector Check will see this. Don\'t add your child\'s name. The subject and grade are enough.':'';
+    ?'👪 For your child. 🛡️ Only tutors with a cleared Vulnerable Sector Check will see this. Don\'t add your child\'s name. The subject and grade are enough.':'';
 }
 function prSetMode(m){
   pr.mode=m;
